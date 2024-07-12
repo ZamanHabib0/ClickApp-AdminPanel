@@ -15,7 +15,6 @@ import TableRow from '@mui/material/TableRow';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import InputLabel from '@mui/material/InputLabel';
-import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -28,13 +27,10 @@ import { flexRender, useReactTable, getCoreRowModel } from '@tanstack/react-tabl
 import ScrollX from 'components/ScrollX';
 import MainCard from 'components/MainCard';
 import { CSVExport } from 'components/third-party/react-table';
-import LinearWithLabel from 'components/@extended/progress/LinearWithLabel';
-
-import makeData from 'data/react-table';
 
 // ==============================|| REACT TABLE ||============================== //
 
-function ReactTable({ columns, data, title }) {
+function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCategory, setSelectedStatus, selectedVendor, selectedCategory, selectedStatus }) {
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   let headers = [];
@@ -47,9 +43,6 @@ function ReactTable({ columns, data, title }) {
 
   const [categories, setCategories] = useState([]);
   const [vendors, setVendors] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedVendor, setSelectedVendor] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
 
   const fetchCategories = async () => {
     try {
@@ -63,6 +56,9 @@ function ReactTable({ columns, data, title }) {
 
       const response = await axios.get(`${baseUrl}/v1/category/getCategories?page=1&limit=9999`, config);
       setCategories(response.data?.data?.categories || []);
+      // if (response.data?.data?.categories && response.data.data.categories.length > 0) {
+      //   setSelectedCategory(response.data.data.categories[0]._id);
+      // }
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -79,6 +75,9 @@ function ReactTable({ columns, data, title }) {
     try {
       const response = await axios.get(`${baseUrl}/v1/vendor/getVendorAdmin`, config);
       setVendors(response.data?.data?.vendors || []);
+      // if (response.data?.data?.vendors && response.data.data.vendors.length > 0) {
+      //   setSelectedVendor(response.data.data.vendors[0]._id);
+      // }
     } catch (error) {
       console.error('Error fetching vendors:', error);
     }
@@ -94,17 +93,17 @@ function ReactTable({ columns, data, title }) {
       <ScrollX>
         <Grid container>
           <Grid item xs={12} md={2}></Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={12} sx={{ padding: '16px' }} >
             <Grid container spacing={3}>
               <Grid item xs={12}></Grid>
-              {/* <Grid item xs={6}>
+              <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="customer-category">Select Category</InputLabel>
                   <FormControl>
                     <Select
                       id="category"
                       displayEmpty
-                      value={selectedCategory}
+                      // value={selectedCategory}
                       onChange={(event) => setSelectedCategory(event.target.value)}
                       input={<OutlinedInput id="select-category" />}
                     >
@@ -117,7 +116,7 @@ function ReactTable({ columns, data, title }) {
                     </Select>
                   </FormControl>
                 </Stack>
-              </Grid> */}
+              </Grid>
               <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="vendor">Vendor</InputLabel>
@@ -125,7 +124,7 @@ function ReactTable({ columns, data, title }) {
                     <Select
                       id="vendor"
                       displayEmpty
-                      value={selectedVendor}
+                      // value={selectedVendor}
                       onChange={(event) => setSelectedVendor(event.target.value)}
                       input={<OutlinedInput id="select-vendor" />}
                     >
@@ -139,24 +138,24 @@ function ReactTable({ columns, data, title }) {
                   </FormControl>
                 </Stack>
               </Grid>
-              <Grid item xs={6}>
+              {/* <Grid item xs={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="customer-status">Status</InputLabel>
                   <FormControl>
                     <Select
                       id="isActive"
                       displayEmpty
-                      value={selectedStatus}
+                      // value={selectedStatus}
                       onChange={(event) => setSelectedStatus(event.target.value)}
                       input={<OutlinedInput id="select-isActive" placeholder="Sort by" />}
                     >
                       <MenuItem value="">Select Active</MenuItem>
-                      <MenuItem value="true">true</MenuItem>
-                      <MenuItem value="false">false</MenuItem>
+                      <MenuItem value="true">Active</MenuItem>
+                      <MenuItem value="false">Inactive</MenuItem>
                     </Select>
                   </FormControl>
                 </Stack>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12}></Grid>
             </Grid>
           </Grid>
@@ -196,13 +195,24 @@ function ReactTable({ columns, data, title }) {
 
 export default function DenseTable() {
   const [offers, setOffers] = useState([]);
-  const [selectedVendor, setSelectedVendor] = useState('');
+  const [selectedVendor, setSelectedVendor] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState('');
 
-  const fetchOffers = async (vendorId) => {
+  const fetchOffers = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/v1/vendor/searchOffers`, {
-        params: { vendor: vendorId }
+      const formData = {
+        vendor: selectedVendor,
+        categoryId: selectedCategory,
+        isDisable: selectedStatus 
+      };
+
+      const response = await axios.post(`${baseUrl}/v1/vendor/ReportGenerateOffer`, formData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+
       setOffers(response.data?.data?.offers || []);
     } catch (error) {
       console.error('Error fetching offers:', error);
@@ -210,18 +220,27 @@ export default function DenseTable() {
   };
 
   useEffect(() => {
-    fetchOffers(selectedVendor);
-  }, [selectedVendor]);
+    fetchOffers();
+  }, [selectedVendor, selectedCategory, selectedStatus]);
 
   const columns = useMemo(
     () => [
+        {
+          header: 'S.No.',
+          accessorKey: 'serialNumber',
+          cell: ({ row }) => row.index + 1 // Generating serial number locally
+        },
       {
         header: 'Title',
         accessorKey: 'title'
       },
       {
-        header: 'Description',
-        accessorKey: 'description'
+        header: 'Vendor',
+        accessorKey: 'vendorDetails.name' // unique accessorKey for Vendor
+      },
+      {
+        header: 'Category',
+        accessorKey: 'categoryDetails.categoryName' // unique accessorKey for Category
       },
       {
         header: 'Offer Type',
@@ -231,29 +250,42 @@ export default function DenseTable() {
         header: 'Offer Count',
         accessorKey: 'offerForEachUser'
       },
-      // {
-      //   header: 'Expiration Date',
-      //   accessorKey: 'expirationDate',
-      //   id: 'expirationDate', // Add id
-      //   cell: ({ value }) => {
-      //     if (!value) return '';
-      //     const date = new Date(value);
-      //     return isNaN(date) ? '' : date.toISOString().split('T')[0];
-      //   },
-      // },
       {
         header: 'Status',
         accessorKey: 'isDisable',
-        id: 'isDisable', // Add id
+        id: 'isDisable',
         cell: ({ value }) => (value ? 'Inactive' : 'Active'),
       },
     ],
     []
   );
+  
 
-  return <ReactTable {...{ data: offers, columns, title: 'Report Table' }} />;
+  return (
+    <ReactTable
+      data={offers}
+      columns={columns}
+      title="Report Table"
+      setSelectedVendor={setSelectedVendor}
+      setSelectedCategory={setSelectedCategory}
+      setSelectedStatus={setSelectedStatus}
+      selectedVendor={selectedVendor}
+      selectedCategory={selectedCategory}
+      selectedStatus={selectedStatus}
+    />
+  );
 }
 
 DenseTable.propTypes = { getValue: PropTypes.func };
 
-ReactTable.propTypes = { columns: PropTypes.array, data: PropTypes.array, title: PropTypes.string };
+ReactTable.propTypes = { 
+  columns: PropTypes.array, 
+  data: PropTypes.array, 
+  title: PropTypes.string,
+  setSelectedVendor: PropTypes.func.isRequired,
+  setSelectedCategory: PropTypes.func.isRequired,
+  setSelectedStatus: PropTypes.func.isRequired,
+  selectedVendor: PropTypes.string.isRequired,
+  selectedCategory: PropTypes.string.isRequired,
+  selectedStatus: PropTypes.string.isRequired,
+};

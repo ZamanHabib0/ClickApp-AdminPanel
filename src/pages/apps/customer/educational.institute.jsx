@@ -17,7 +17,6 @@ import TableContainer from '@mui/material/TableContainer';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { openSnackbar } from 'api/snackbar';
 
 // third-party
 import { PatternFormat } from 'react-number-format';
@@ -37,7 +36,9 @@ import Avatar from 'components/@extended/Avatar';
 import IconButton from 'components/@extended/IconButton';
 
 import CustomerModal from 'sections/apps/customer/CustomerModal';
-import AlertCustomerDelete from 'sections/apps/customer/AlertCustomerDelete';
+import CategoryModal from 'sections/apps/customer/EducationalModal';
+import AlertCustomerDelete from 'sections/apps/customer/AlertInstituateDelete';
+
 import CustomerView from 'sections/apps/customer/CustomerView';
 import EmptyReactTable from 'pages/tables/react-table/empty';
 
@@ -51,17 +52,14 @@ import {
   TablePagination
 } from 'components/third-party/react-table';
 
-import { useGetCustomer } from 'api/customer';
+import { useGetCustomer, insertCustomer, updateCustomer, deleteCustomer } from 'api/educational.institute';
 import { ImagePath, getImageUrl } from 'utils/getImageUrl';
 
 // assets
-import { Add, Edit, Eye, Trash ,Lock ,Unlock} from 'iconsax-react';
+import { Add, Edit, Eye, Trash, Lock, Unlock } from 'iconsax-react';
 import axios from 'axios';
-import { height, width } from '@mui/system';
 
-// ==============================|| REACT TABLE - LIST ||============================== //
-
-function ReactTable({ data, columns, modalToggler, open, setData }) {
+function ReactTable({ columns, modalToggler, data, open }) {
   const theme = useTheme();
   const [sorting, setSorting] = useState([{ id: 'name', desc: false }]);
   const [columnFilters, setColumnFilters] = useState([]);
@@ -71,7 +69,6 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
   const table = useReactTable({
     data,
     columns,
-    open,
     state: {
       columnFilters,
       sorting,
@@ -93,10 +90,17 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
 
   const backColor = alpha(theme.palette.primary.lighter, 0.1);
 
-  const headers = columns.map((column) => ({
-    label: typeof column.header === 'string' ? column.header : '#',
-    key: column.accessorKey
-  }));
+  let headers = [];
+  columns.map(
+    (columns) =>
+      // @ts-ignore
+      columns.accessorKey &&
+      headers.push({
+        label: typeof columns.header === 'string' ? columns.header : '#',
+        // @ts-ignore
+        key: columns.accessorKey
+      })
+  );
 
   return (
     <MainCard content={false}>
@@ -106,10 +110,11 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
           onFilterChange={(value) => setGlobalFilter(String(value))}
           placeholder={`Search ${data.length} records...`}
         />
+
         <Stack direction="row" alignItems="center" spacing={2}>
           <SelectColumnSorting {...{ getState: table.getState, getAllColumns: table.getAllColumns, setSorting }} />
           <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
-            Add Vendor
+            Add Educational Institute
           </Button>
         </Stack>
       </Stack>
@@ -190,205 +195,127 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
     </MainCard>
   );
 }
-// ==============================|| CUSTOMER LIST ||============================== //
 
-export default function CustomerListPage() {
+ReactTable.propTypes = { data: PropTypes.array, columns: PropTypes.array, modalToggler: PropTypes.func, open: PropTypes.any };
+
+const CustomerListPage = () => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [customerModal, setCustomerModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerDeleteId, setCustomerDeleteId] = useState('');
-  const [customerDeleteName, setCustomerDeleteName] = useState('');
+  const [customerTitle, setCustomerTitle] = useState('');
 
-  const { customers, customersLoading, customersError } = useGetCustomer();
-  const [data, setData] = useState(customers || []);
+  const { customers, customersLoading, customersError, customersValidating } = useGetCustomer();
 
-  useEffect(() => {
-    if (customers) {
-      setData(customers);
-    }
-  }, [customers]);
-  
+  // console.log("customers " + customers[0].categoryName )
 
-  const lists = customers;
+  const data = customers || [];
 
   const handleClose = () => {
     setOpen(!open);
   };
 
-  const handleViewClick = async (vendorId) => {
+  const handleDeleteCustomer = async (id) => {
     try {
-      const vendorOffer = await getOfferOfVendor(vendorId);
-      console.log('Vendor Offer:', vendorOffer);
+      await deleteCustomer(id);
+      setCustomerDeleteId('');
+      setCustomerTitle('');
+      handleClose();
     } catch (error) {
-      console.error('Failed to fetch vendor offer:', error);
+      console.error('Failed to delete customer:', error);
     }
   };
 
   const columns = useMemo(
     () => [
       {
-        header: 'Vendor Name',
+        header: 'Institute Name',
         accessorKey: 'name',
-        cell: ({ row, getValue }) => (
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Avatar
-              alt="Avatar"
-              size="sm"
-              sx={{ borderRadius: "10px",height : "60px" ,width : "60px"}}
-              src={row.original.logo} // Assuming `logo` is the field in your data containing the logo URL
-            />
-            <Stack spacing={0}>
-              <Typography variant="subtitle1">{getValue()}</Typography>
-              <Typography color="text.secondary">{row.original.email}</Typography>
-            </Stack>
-          </Stack>
-        )
       },
       {
-        header: 'Description',
-        accessorKey: 'description'
+        header: 'Type',
+        accessorKey: 'type'
       },
-      {
-        header: 'Category',
-        accessorKey: 'category.categoryName'
-      },
-      // {
-      //   header: 'Status',
-      //   accessorKey: 'isActive',
-      //   cell: ({ row }) => {
-      //     return row.original.isActive
-      //       ? <Chip color="success" label="Active" size="small" variant="light" />
-      //       : <Chip color="error" label="Inactive" size="small" variant="light" />;
-      //   }
-      // },
       {
         header: 'Actions',
         meta: {
           className: 'cell-center'
         },
         disableSortBy: true,
-        cell: ({ row }) => {
-          const [isBlocked, setIsBlocked] = useState(row.original.isActive);
-  
-          const handleBlockUnblock = async () => {
-            const userId = row.original._id;
-            const isActive = !isBlocked;
-            try {
-              const token = localStorage.getItem('authToken');
-              const config = {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              };
-  
-              const response = await axios.patch(`${baseUrl}/v1/vendor/${userId}/status`, { isActive }, config);
-              if (response.status === 200 && !response.data.error) {
-                const updatedVendor = response.data.data;
-                setIsBlocked(isActive);
-  
-                // Update the state with the new data
-                setData((prevData) => prevData.map((vendor) =>
-                  vendor._id === updatedVendor._id ? updatedVendor : vendor
-                ));
-                openSnackbar({
-                  open: true,
-                  message: `Vendor has successfully ${(isActive) ? "UnBlocked" : "Blocked"}`,
-                  variant: 'alert',
-  
-                  alert: {
-                      color: 'success'
-                  }
-              });
-  
-                // Optionally refetch the data using SWR
-                mutate(`${baseUrl}/v1/vendor/getVendorAdmin?limit=9999&page=1`);
-              
-              }
-            } catch (error) {
-              console.error('Failed to block/unblock user', error);
-            }
-          };
-  
-          const collapseIcon =
-            row.getCanExpand() && row.getIsExpanded() ? (
-              <Add style={{ color: theme.palette.error.main, transform: 'rotate(45deg)' }} />
-            ) : (
-              <Eye />
-            );
-  
-          return (
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0}>
-              <Tooltip title={isBlocked ? 'Unblock' : 'Block'}>
-                <IconButton
-                  color={isBlocked ? 'secondary' : 'primary'}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBlockUnblock();
-                  }}
-                >
-                  {isBlocked ? <Unlock /> : <Lock />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="View">
-                <IconButton color="secondary" onClick={row.getToggleExpandedHandler()}>
-                  {collapseIcon}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Edit">
-                <IconButton
-                  color="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedCustomer(row.original);
-                    setCustomerModal(true);
-                  }}
-                >
-                  <Edit />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <IconButton
-                  color="error"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClose();
-                    setCustomerDeleteId(row.original._id);
-                    setCustomerDeleteName(row.original?.name);
-                  }}
-                >
-                  <Trash />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          );
-        }
+        cell: ({ row }) => (
+          <>
+            <Tooltip title="Edit">
+              <IconButton
+                color="primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedCustomer(row.original);
+                  setCustomerModal(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <IconButton
+                color="error"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCustomerDeleteId(row.original._id);
+                  setCustomerTitle(row.original.name);
+                  handleClose();
+                }}
+              >
+                <Trash />
+              </IconButton>
+            </Tooltip>
+          </>
+        )
       }
-    ], // eslint-disable-next-line
+    ],
     [theme]
   );
-  
 
-  if (customersLoading) return <EmptyReactTable />;
+  useEffect(() => {
+    if (customersValidating) return;
+
+    if (customersLoading) {
+      // Handle loading state
+    } else if (customersError) {
+      // Handle error state
+    }
+  }, [customersLoading, customersError, customersValidating]);
 
   return (
     <>
       <ReactTable
         {...{
-          data: lists,
-          open:open,
           columns,
+          open,
+          data,
           modalToggler: () => {
             setCustomerModal(true);
             setSelectedCustomer(null);
           }
         }}
       />
-      <AlertCustomerDelete id={customerDeleteId} title={customerDeleteName} open={open} handleClose={handleClose} />
-      <CustomerModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} />
+      <AlertCustomerDelete
+        id={customerDeleteId}
+        title={customerTitle}
+        open={open}
+        handleClose={handleClose}
+        handleDelete={() => handleDeleteCustomer(customerDeleteId)}
+      />
+      <CategoryModal
+        open={customerModal}
+        modalToggler={setCustomerModal}
+        customer={selectedCustomer}
+        handleCustomerUpdate={updateCustomer}
+        handleCustomerInsert={insertCustomer}
+      />
     </>
   );
-}
+};
 
-ReactTable.propTypes = { data: PropTypes.array, columns: PropTypes.array, modalToggler: PropTypes.func,open :PropTypes.any};
+export default CustomerListPage;

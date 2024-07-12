@@ -7,6 +7,9 @@ import { useTheme } from '@mui/material/styles';
 import { Category, TableDocument } from 'iconsax-react';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import FormGroup from '@mui/material/FormGroup';
+import Checkbox from '@mui/material/Checkbox';
+
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
@@ -56,13 +59,15 @@ import Avatar from 'components/@extended/Avatar';
 import IconButton from 'components/@extended/IconButton';
 import CircularWithPath from 'components/@extended/progress/CircularWithPath';
 
-import { ThemeMode, Gender } from 'config';
+import { ThemeMode, Gender, ThemeDirection } from 'config';
 import { openSnackbar } from 'api/snackbar';
 import { insertCustomer, updateCustomer } from 'api/customer';
 import { ImagePath, getImageUrl } from 'utils/getImageUrl';
+import ReactQuill from '../../../sections/forms/plugins/ReactQuill'
+import useConfig from 'hooks/useConfig';
 
 // assets
-import { Camera,   Trash } from 'iconsax-react';
+import { Camera, Trash } from 'iconsax-react';
 import axios from 'axios';
 
 // CONSTANT
@@ -82,10 +87,12 @@ const getInitialValues = (customer) => {
       address: "",
       telephone: "",
     }],
+    termsAndCondition : "",
+    availableServices : [],
     menu: [],
     gallery: [],
-    galleryImages : [],
-    menuImages : []
+    galleryImages: [],
+    menuImages: []
   };
 
   if (customer) {
@@ -95,31 +102,44 @@ const getInitialValues = (customer) => {
   return newCustomer;
 };
 
-const allStatus = [
-  { value: 3, label: 'True' },
-  { value: 1, label: 'False' },
-  // { value: 2, label: 'Pending' }
-];
-const alltypevendor = [
-  { value: 4, label: 'VIP' },
-  { value: 5, label: 'Free' },
-  { value: 6, label: 'Premium' }
-];
-
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
-
 export default function FormCustomerAdd({ customer, closeModal }) {
+
+  const [Services ,setServices] =  useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+
+
+  const handleCheckboxChange = (event) => {
+    const { value, checked } = event.target;
+    setSelectedServices((prevSelected) => {
+      if (prevSelected === undefined) {
+        prevSelected = []; // Initialize as empty array if undefined
+      }
+      if (checked) {
+        return [...prevSelected, value];
+      } else {
+        return prevSelected.filter((country) => country !== value);
+      }
+    });
+  };
+  
+
+
+
 
   const [list, setList] = useState(false);
   const [galleryList, setGalleryList] = useState(false);
   const theme = useTheme();
-
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(undefined);
   const [vendors, setVendors] = useState([]);
+  const [termsandCondition, setTermsandCondition] = useState(customer?.termsAndCondition || '');
+
   const [avatar, setAvatar] = useState(
-    getImageUrl(`avatar-${customer && customer !== null && customer?.avatar ? customer.avatar : 1}.png`, ImagePath.USERS)
+    getImageUrl(`upload.svg`, ImagePath.UPLOAD)
   );
+
+  const { mode, themeDirection } = useConfig();
 
   useEffect(() => {
     if (selectedImage) {
@@ -129,6 +149,7 @@ export default function FormCustomerAdd({ customer, closeModal }) {
 
   useEffect(() => {
     setLoading(false);
+    setSelectedServices(customer?.availableServices);
   }, []);
   const fetchVendors = async () => {
     try {
@@ -143,9 +164,23 @@ export default function FormCustomerAdd({ customer, closeModal }) {
     }
     setLoading(false);
   };
+
+  const fetchServices = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/v1/available-Service/getService?page=1&limit=10?page=1&limit=9999`);
+      setServices(response?.data?.data?.AvaliableService); // Assuming response.data contains the vendor list
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+    }
+    setLoading(false);
+  };
+
+
+
+
   useEffect(() => {
 
-
+    fetchServices();
     fetchVendors();
   }, []);
 
@@ -192,6 +227,12 @@ export default function FormCustomerAdd({ customer, closeModal }) {
           delete newCustomer.menu; // Remove the image field if no new image is selected
         }
 
+        newCustomer.availableServices = selectedServices
+        newCustomer.termsAndCondition = termsandCondition
+
+
+        
+
         if (customer) {
 
           newCustomer.galleryImages = galleryImages
@@ -201,7 +242,7 @@ export default function FormCustomerAdd({ customer, closeModal }) {
           updateCustomer(newCustomer._id, newCustomer).then(() => {
             openSnackbar({
               open: true,
-              message: 'Customer update successfully.',
+              message: 'Vendor update successfully.',
               variant: 'alert',
 
               alert: {
@@ -217,7 +258,7 @@ export default function FormCustomerAdd({ customer, closeModal }) {
           await insertCustomer(newCustomer).then(() => {
             openSnackbar({
               open: true,
-              message: 'Customer added successfully.',
+              message: 'Vendor added successfully.',
               variant: 'alert',
 
               alert: {
@@ -239,20 +280,20 @@ export default function FormCustomerAdd({ customer, closeModal }) {
   const [menuImages, setMenuImages] = useState(customer?.menu || []); // Initialize with existing images if editing
   const [galleryImages, setgalleryImages] = useState(customer?.gallery || []); // Initialize with existing images if editing
 
- if(customer){
-  customer.menu = []
-  customer.gallery = []
- }
+  if (customer) {
+    customer.menu = []
+    customer.gallery = []
+  }
 
 
-  
+
 
   const onRemove = (imageUrl) => {
     const filteredImages = menuImages.filter((image) => image !== imageUrl);
     setMenuImages(filteredImages);
   };
 
-  
+
   // Function to handle adding images
   const handleAddImage = (file) => {
     setMenuImages([...menuImages, file]);
@@ -265,13 +306,13 @@ export default function FormCustomerAdd({ customer, closeModal }) {
     setMenuImages(updatedImages);
   };
 
-    // Function to handle removing images
-    const handleRemoveImageGallery = (index) => {
-      const updatedImages = [...galleryImages];
-      updatedImages.splice(index, 1);
-      setgalleryImages(updatedImages);
-    };
-  
+  // Function to handle removing images
+  const handleRemoveImageGallery = (index) => {
+    const updatedImages = [...galleryImages];
+    updatedImages.splice(index, 1);
+    setgalleryImages(updatedImages);
+  };
+
 
 
 
@@ -321,7 +362,10 @@ export default function FormCustomerAdd({ customer, closeModal }) {
             <DialogContent sx={{ p: 2.5 }}>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={3}>
+                <Typography sx={{ color: 'secondary.dark' }}>Logo</Typography>
+
                   <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
+
                     <FormLabel
                       htmlFor="change-avtar"
                       sx={{
@@ -490,7 +534,7 @@ export default function FormCustomerAdd({ customer, closeModal }) {
                           >
                             <MenuItem value="">Select Active</MenuItem>
                             <MenuItem value="true">true</MenuItem>
-                            <MenuItem value="False">false</MenuItem>
+                            <MenuItem value="false">false</MenuItem>
                           </Select>
                         </FormControl>
                         {touched.isActive && errors.isActive && (
@@ -612,43 +656,95 @@ export default function FormCustomerAdd({ customer, closeModal }) {
                     </Grid>
 
                     <Divider />
+                    <Grid
+      item
+      xs={12}
+      sx={{
+        '& .quill': {
+          bgcolor: mode === 'dark' ? 'dark.main' : 'secondary.lighter',
+          borderRadius: '4px',
+          '& .ql-toolbar': {
+            bgcolor: mode === 'dark' ? 'dark.light' : 'secondary.100',
+            borderColor: theme.palette.divider,
+            borderTopLeftRadius: '4px',
+            borderTopRightRadius: '4px'
+          },
+          '& .ql-container': {
+            borderColor: `${theme.palette.divider} !important`,
+            borderBottomLeftRadius: '4px',
+            borderBottomRightRadius: '4px',
+            '& .ql-editor': { minHeight: 135 }
+          },
+          '& .ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg': {
+            position: themeDirection === 'rtl' ? 'initial' : 'absolute'
+          }
+        }
+      }}
+    >
+      <MainCard title="Terms and Condition">
+        <ReactQuill termsandCondition={termsandCondition} setTermsandCondition={setTermsandCondition} />
+      </MainCard>
+    </Grid>
+  
+
+                    <Divider />
+
+                    <Grid item xs={12}>
+
+                      <Typography variant="h6">Select Servies You are providing</Typography>
+                      <FormControl component="fieldset">
+                        <FormGroup row>
+                          {Services.map((AvalibleServices) => (
+                            <FormControlLabel
+                              key={AvalibleServices._id}
+                              control={<Checkbox value={AvalibleServices._id} onChange={handleCheckboxChange} />}
+                              label={AvalibleServices.serviceName}
+                            />
+                          ))}
+                        </FormGroup>
+                      </FormControl>
+                    </Grid>
+
+                    <Divider />
+
+
 
                     {customer && (
-  <Grid item xs={12}>
-    <MainCard title="Selected Menu Images">
-      <Stack direction="row" spacing={2} sx={{ overflowX: 'auto' }}>
-        {menuImages.map((imageUrl, index) => (
-          <List key={index}>
-            <ListItem divider>
-              <Grid container justifyContent="center" alignItems="center" spacing={1}>
-                <Grid item xs={4}>
-                  <Avatar
-                    alt={`Menu Image ${index + 1}`}
-                    variant="rounded"
-                    src={imageUrl}
-                    sx={{ width: 80, height: 80 }}
-                  />
-                </Grid>
-                <Grid item xs={1}>
-                  <IconButton
-                    onClick={() => handleRemoveImage(index)}
-                    size="small"
-                    color="inherit"
-                  >
-                    {/* <CloseIcon /> */}
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </ListItem>
-          </List>
-        ))}
-      </Stack>
-    </MainCard>
-  </Grid>
-)}
+                      <Grid item xs={12}>
+                        <MainCard title="Selected Menu Images">
+                          <Stack direction="row" spacing={2} sx={{ overflowX: 'auto' }}>
+                            {menuImages.map((imageUrl, index) => (
+                              <List key={index}>
+                                <ListItem divider>
+                                  <Grid container justifyContent="center" alignItems="center" spacing={1}>
+                                    <Grid item xs={4}>
+                                      <Avatar
+                                        alt={`Menu Image ${index + 1}`}
+                                        variant="rounded"
+                                        src={imageUrl}
+                                        sx={{ width: 80, height: 80 }}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={1}>
+                                      <IconButton
+                                        onClick={() => handleRemoveImage(index)}
+                                        size="small"
+                                        color="inherit"
+                                      >
+                                        {/* <CloseIcon /> */}
+                                      </IconButton>
+                                    </Grid>
+                                  </Grid>
+                                </ListItem>
+                              </List>
+                            ))}
+                          </Stack>
+                        </MainCard>
+                      </Grid>
+                    )}
 
 
-    
+
 
 
                     <Grid item xs={12}>
@@ -689,38 +785,38 @@ export default function FormCustomerAdd({ customer, closeModal }) {
                     </Grid>
 
                     {customer && (
-  <Grid item xs={12}>
-    <MainCard title="Selected Gallery Images">
-      <Stack direction="row" spacing={2} sx={{ overflowX: 'auto' }}>
-        {galleryImages.map((imageUrl, index) => (
-          <List key={index}>
-            <ListItem divider>
-              <Grid container justifyContent="center" alignItems="center" spacing={1}>
-                <Grid item xs={4}>
-                  <Avatar
-                    alt={`Menu Image ${index + 1}`}
-                    variant="rounded"
-                    src={imageUrl}
-                    sx={{ width: 80, height: 80 }}
-                  />
-                </Grid>
-                <Grid item xs={1}>
-                  <IconButton
-                    onClick={() => handleRemoveImage(index)}
-                    size="small"
-                    color="inherit"
-                  >
-                    {/* <CloseIcon /> */}
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </ListItem>
-          </List>
-        ))}
-      </Stack>
-    </MainCard>
-  </Grid>
-)}
+                      <Grid item xs={12}>
+                        <MainCard title="Selected Gallery Images">
+                          <Stack direction="row" spacing={2} sx={{ overflowX: 'auto' }}>
+                            {galleryImages.map((imageUrl, index) => (
+                              <List key={index}>
+                                <ListItem divider>
+                                  <Grid container justifyContent="center" alignItems="center" spacing={1}>
+                                    <Grid item xs={4}>
+                                      <Avatar
+                                        alt={`Menu Image ${index + 1}`}
+                                        variant="rounded"
+                                        src={imageUrl}
+                                        sx={{ width: 80, height: 80 }}
+                                      />
+                                    </Grid>
+                                    <Grid item xs={1}>
+                                      <IconButton
+                                        onClick={() => handleRemoveImage(index)}
+                                        size="small"
+                                        color="inherit"
+                                      >
+                                        {/* <CloseIcon /> */}
+                                      </IconButton>
+                                    </Grid>
+                                  </Grid>
+                                </ListItem>
+                              </List>
+                            ))}
+                          </Stack>
+                        </MainCard>
+                      </Grid>
+                    )}
 
                     <Grid item xs={12}>
                       <MainCard

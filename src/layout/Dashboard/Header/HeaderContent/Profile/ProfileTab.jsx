@@ -24,21 +24,6 @@ export default function ProfileTab({ handleLogout }) {
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-      {/* <ListItemButton selected={selectedIndex === 0} onClick={(event) => handleListItemClick(event, 0, '/profiles/user/personal')}>
-        <ListItemIcon>
-          <Edit2 variant="Bulk" size={18} />
-        </ListItemIcon>
-        <ListItemText primary="Edit Profile" />
-      </ListItemButton>
-      <ListItemButton selected={selectedIndex === 1} onClick={(event) => handleListItemClick(event, 1, '/profiles/account/basic')}>
-        <ListItemIcon>
-          <Profile variant="Bulk" size={18} />
-        </ListItemIcon>
-        <ListItemText primary="View Profile" />
-      </ListItemButton> */}
-
-      {/* Legal Agreements and Policies */}
-
       <ListItemButton selected={selectedIndex === 2} onClick={(event) => handleListItemClick(event, 2, '/profiles/account/settings')}>
         <ListItemIcon>
           <Profile variant="Bulk" size={18} />

@@ -10,6 +10,10 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard/default')))
 
 const AppCustomerList = Loadable(lazy(() => import('pages/apps/customer/list')));
 const AppCategoryList = Loadable(lazy(() => import('pages/apps/customer/category.list')));
+const AppAvaliableServicesList = Loadable(lazy(() => import('pages/apps/customer/AppAvaliableServices')));
+
+const AppEducationalInstitute = Loadable(lazy(() => import('pages/apps/customer/educational.institute')));
+
 const AppMemberShipNumber = Loadable(lazy(() => import('pages/apps/customer/membershipNumber')));
 
 const AppSupport = Loadable(lazy(() => import('pages/apps/customer/supportuser')));
@@ -62,11 +66,24 @@ const MainRoutes = {
           ]
         },
         {
+          path: 'Aavilable-Services',
+          element: <AppAvaliableServicesList />
+        },
+        {
           path: 'category',
           children: [
             {
               path: 'category-list',
               element: <AppCategoryList />
+            },
+          ]
+        },
+        {
+          path: 'educational-institute',
+          children: [
+            {
+              path: 'list',
+              element: <AppEducationalInstitute />
             },
           ]
         },
@@ -112,6 +129,7 @@ const MainRoutes = {
           path: '/apps/customer/offer',
           element: <AppCustomerCard />
         },
+        
      
         {
           path: 'profiles',
@@ -147,7 +165,7 @@ const MainRoutes = {
                   element: <UserTabPassword />
                 },
                 {
-                  path: 'settings',
+                  path: 'account/settings',
                   element: <UserTabSettings />
                 }
               ]

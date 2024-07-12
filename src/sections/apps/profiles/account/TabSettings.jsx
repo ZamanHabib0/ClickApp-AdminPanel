@@ -8,28 +8,28 @@ import * as yup from 'yup';
 import MainCard from 'components/MainCard';
 import AnimateButton from 'components/@extended/AnimateButton';
 
-const baseUrl = import.meta.env.VITE_APP_API_URL
-
+const baseUrl = import.meta.env.VITE_APP_API_URL;
 
 const validationSchema = yup.object({
   supportEmail: yup.string().email('Enter a valid email').required('Email is required'),
   tiktokUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   facebookUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   instagramUrl: yup.string().url('Enter a valid URL').required('URL is required'),
-  termsConditionsUrl: yup.string().url('Enter a valid URL').required('URL is required'),
-  privacyPolicyUrl: yup.string().url('Enter a valid URL').required('URL is required')
-
+  privacyPolicyUrl: yup.string().url('Enter a valid URL').required('URL is required'),
+  howToUseUrl: yup.string().url('Enter a valid URL').required('URL is required'),
+  buyNowUrl: yup.string().url('Enter a valid URL').required('URL is required')
 });
 
 export default function TabSettings() {
   const [isEditing, setIsEditing] = useState(false);
   const [initialValues, setInitialValues] = useState({
-    supportEmail: 'clickapp@gmail.com',
-    tiktokUrl: 'www.tiktok.com',
-    facebookUrl: 'wwww.facebook.com',
-    instagramUrl: 'wwww.instagram.com',
-    termsConditionsUrl: 'www.termsConditionsUrl.com',
-    privacyPolicyUrl: 'www.privacyPolicyUrl.com'
+    supportEmail: '',
+    tiktokUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    privacyPolicyUrl: '',
+    howToUseUrl: '',
+    buyNowUrl: ''
   });
 
   useEffect(() => {
@@ -38,12 +38,14 @@ export default function TabSettings() {
         const response = await axios.get(`${baseUrl}/v1/adminpanel/getAccountSettings`);
         const data = response.data.data;
         setInitialValues({
-          supportEmail: data.supportEmail,
-          tiktokUrl: data.tiktokUrl,
-          facebookUrl: data.facebookUrl,
-          instagramUrl: data.instagramUrl,
-          termsConditionsUrl: data.TermsandConditionsurl,
-          privacyPolicyUrl: data.privacyPolicyUrl
+          supportEmail: data.supportEmail || '',
+          tiktokUrl: data.tiktokUrl || '',
+          facebookUrl: data.facebookUrl || '',
+          instagramUrl: data.instagramUrl || '',
+          termsConditionsUrl: data.termsConditionsUrl || '',
+          privacyPolicyUrl: data.privacyPolicyUrl || '',
+          howToUseUrl: data.HowToUse || '',
+          buyNowUrl: data.BuyNow || ''
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -58,26 +60,20 @@ export default function TabSettings() {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      console.log('Submitting form with values:', values);
+
       try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
 
-    const token = localStorage.getItem('authToken');
-
-    const config = {
-      headers: {
-        'Authorization': `Bearer ${token}`, // Assuming token is in the format 'Bearer <token>'
-        'Content-Type': 'application/json'
-      }
-    };
-
-
-        await axios.post(`${baseUrl}/v1/adminpanel/accountSettings`, values,config);
-        console.log('Form values:', values);
-        // openSnackbar({
-        //   open: true,
-        //   message: 'Submit Success',
-        //   variant: 'alert',
-        //   alert: { color: 'success' }
-        // });
+        const response = await axios.post(`${baseUrl}/v1/adminpanel/accountSettings`, values, config);
+        console.log('API response:', response);
+        // Add the logic for opening a snackbar
         setIsEditing(false); // Disable editing after successful submission
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -86,7 +82,11 @@ export default function TabSettings() {
   });
 
   const handleEditClick = () => {
-    setIsEditing(!isEditing);
+    if (isEditing) {
+      formik.handleSubmit();
+    } else {
+      setIsEditing(true);
+    }
   };
 
   return (
@@ -119,7 +119,7 @@ export default function TabSettings() {
                     fullWidth
                     id="tiktokUrl"
                     name="tiktokUrl"
-                    placeholder="Enter TIKTOK URL"
+                    placeholder="Enter Tiktok URL"
                     value={formik.values.tiktokUrl}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -136,7 +136,7 @@ export default function TabSettings() {
                     fullWidth
                     id="facebookUrl"
                     name="facebookUrl"
-                    placeholder="Enter FACEBOOK URL"
+                    placeholder="Enter Facebook URL"
                     value={formik.values.facebookUrl}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -166,9 +166,9 @@ export default function TabSettings() {
               <Grid item xs={12}>
                 <Stack direction="row" justifyContent="flex-end">
                   <AnimateButton>
-                  <Button variant="contained" type="button" onClick={isEditing ? formik.handleSubmit : handleEditClick}>
-  {isEditing ? 'Submit' : 'Edit'}
-</Button>
+                    <Button variant="contained" onClick={handleEditClick}>
+                      {isEditing ? 'Submit' : 'Edit'}
+                    </Button>
                   </AnimateButton>
                 </Stack>
               </Grid>
@@ -177,7 +177,7 @@ export default function TabSettings() {
         </MainCard>
       </Grid>
       <Grid item xs={12} md={6}>
-        <MainCard title="Legal Arguments">
+        <MainCard title="Other Urls">
           <form onSubmit={formik.handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -199,17 +199,34 @@ export default function TabSettings() {
               </Grid>
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="termsConditionsUrl">Terms and Conditions URL</InputLabel>
+                  <InputLabel htmlFor="howToUseUrl">How To Use URL</InputLabel>
                   <TextField
                     fullWidth
-                    id="termsConditionsUrl"
-                    name="termsConditionsUrl"
-                    placeholder="Enter Terms and Conditions URL"
-                    value={formik.values.termsConditionsUrl}
+                    id="howToUseUrl"
+                    name="howToUseUrl"
+                    placeholder="Enter How To Use URL"
+                    value={formik.values.howToUseUrl}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    error={formik.touched.termsConditionsUrl && Boolean(formik.errors.termsConditionsUrl)}
-                    helperText={formik.touched.termsConditionsUrl && formik.errors.termsConditionsUrl}
+                    error={formik.touched.howToUseUrl && Boolean(formik.errors.howToUseUrl)}
+                    helperText={formik.touched.howToUseUrl && formik.errors.howToUseUrl}
+                    disabled={!isEditing}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="buyNowUrl">Buy Now URL</InputLabel>
+                  <TextField
+                    fullWidth
+                    id="buyNowUrl"
+                    name="buyNowUrl"
+                    placeholder="Enter Buy Now URL"
+                    value={formik.values.buyNowUrl}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.buyNowUrl && Boolean(formik.errors.buyNowUrl)}
+                    helperText={formik.touched.buyNowUrl && formik.errors.buyNowUrl}
                     disabled={!isEditing}
                   />
                 </Stack>
@@ -217,10 +234,9 @@ export default function TabSettings() {
               <Grid item xs={12}>
                 <Stack direction="row" justifyContent="flex-end">
                   <AnimateButton>
-              <Button variant="contained" type="button" onClick={isEditing ? formik.handleSubmit : handleEditClick}>
-  {isEditing ? 'Submit' : 'Edit'}
-</Button>
-                 
+                    <Button variant="contained" onClick={handleEditClick}>
+                      {isEditing ? 'Submit' : 'Edit'}
+                    </Button>
                   </AnimateButton>
                 </Stack>
               </Grid>

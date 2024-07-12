@@ -22,8 +22,9 @@ import { PatternFormat } from 'react-number-format';
 import MainCard from 'components/MainCard';
 import Avatar from 'components/@extended/Avatar';
 import Transitions from 'components/@extended/Transitions';
-
-import { ImagePath, getImageUrl } from 'utils/getImageUrl';
+import InvoiceUserList from '../../../sections/apps/invoice/InvoiceCard'
+import DOMPurify from 'dompurify';
+import { ImagePath, getImageUrl } from 'utils/getImageUrl'; 
 
 // assets
 import { Link2, Location, Mobile, Facebook } from 'iconsax-react';
@@ -42,16 +43,16 @@ export default function CustomerView({ data }) {
     );
   }
 
-  const chunkedMenu = data?.menu ? chunkArray(data.menu, 3) : [];
-  const chunkedGallery = data?.gallery ? chunkArray(data.gallery, 3) : [];
+  const chunkedMenu = data?.menu ? chunkArray(data.menu, 4) : [];
+  const chunkedGallery = data?.gallery ? chunkArray(data.gallery, 4) : [];
 
-
+  const sanitizedHTML = DOMPurify.sanitize(data.termsAndCondition);
 
   return (
     <Transitions type="slide" direction="down" in={true}>
       <Grid container spacing={1} sx={{ pl: { xs: 0, sm: 4, md: 6, lg: 10, xl: 12 } }}>
         <Grid item xs={12} sm={7} md={7} lg={3} xl={3}>
-          <MainCard title="Social Links">
+          <MainCard title="Profile">
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Stack spacing={2.5} alignItems="center">
@@ -139,90 +140,6 @@ export default function CustomerView({ data }) {
                     </Grid>
                   </Grid>
                 </ListItem>
-                {/* <ListItem>
-                  <Grid container spacing={3}>
-
-                    <Grid item xs={12} md={6}>
-                      <Stack spacing={0.5}>
-                      <Typography color="secondary" variant='h5'>Contact Number</Typography>
-                        <Typography>{data?.telephone  }</Typography>
-                      </Stack>
-
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                      <ListItem>
-                        <Stack spacing={0.5}>
-                        <Stack spacing={0.5}>
-                     
-                      </Stack>
-                        
-                        </Stack>
-                      </ListItem>
-
-                    </Grid>
-                  </Grid>
-                </ListItem> */}
-                {/* <ListItem>
-                  <Grid container spacing={3}>
-
-                    <Grid item xs={12} md={6}>
-                    
-                    <Typography color="secondary" variant='h5'>Location</Typography>
-                          <Typography>{data?.location
-
-                          }</Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <ListItem>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary" variant='h5'>
-                            vendorType
-                          </Typography>
-                          <Typography>{data?.
-                            vendorType
-
-
-                          }</Typography>
-                        </Stack>
-                      </ListItem>
-
-                    </Grid>
-                  </Grid>
-                </ListItem>
-                <ListItem>
-                  <Grid container spacing={3}>
-
-                    <Grid item xs={12} md={6}>
-                      <Stack spacing={0.5}>
-                        <Typography color="secondary" variant='h5'>
-                          website
-                        </Typography>
-                        <Typography>{data?.
-                          website
-
-
-                        }</Typography>
-                      </Stack>
-
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <ListItem>
-                        <Stack spacing={0.5}>
-                          <Typography color="secondary" variant='h5'>
-                            FaceBook Page
-                          </Typography>
-                          <Typography>{data?.
-                            facebookPage
-
-
-                          }</Typography>
-                        </Stack>
-                      </ListItem>
-
-                    </Grid>
-                  </Grid>
-                </ListItem> */}
               </List>
             </MainCard>
             <MainCard title="Branches">
@@ -253,6 +170,14 @@ export default function CustomerView({ data }) {
                 </List>
               ))}
             </MainCard>
+   
+
+
+            <Grid item xs={12}>
+          <InvoiceUserList availableServices = {data.availableServices} />
+        </Grid>
+
+
             <MainCard title="Menu Images">
       <Stack spacing={2}> {/* Stack for vertical spacing */}
         {chunkedMenu.map((chunk, index) => (
@@ -262,12 +187,17 @@ export default function CustomerView({ data }) {
                 <ListItem divider>
                   <Grid item xs={12}>
                     <Stack spacing={0.5} direction="row" alignItems="center">
-                      <Avatar 
+                    <Link target="_blank" href={`${imageUrl}`} passHref>
+                    <Avatar 
                         alt={`Menu Image ${index * 3 + idx + 1}`} 
                         variant="rounded" 
                         src={imageUrl} 
-                        sx={{ width: 150, height: 150 }} // Increase the size of the Avatar
-                      />
+                        sx={{ 
+                          width: 100, 
+                          height: 100, 
+                          border: '2px solid #ccc',  // Example border style, adjust as needed
+                        }} 
+                      /></Link>
                     </Stack>
                   </Grid>
                 </ListItem>
@@ -278,30 +208,47 @@ export default function CustomerView({ data }) {
       </Stack>
     </MainCard>
 
-    <MainCard title="Gallery Images">
-      <Stack spacing={2}> 
-        {chunkedGallery.map((chunk, index) => (
-          <Stack key={index} spacing={2} direction="row"> 
-            {chunk.map((imageUrl, idx) => (
-              <List key={`${index}-${idx}`}>
-                <ListItem divider>
-                  <Grid item xs={12}>
-                    <Stack spacing={0.5} direction="row" alignItems="center">
+  
+<MainCard title="Gallery Images">
+  <Stack spacing={2}> 
+    {chunkedGallery.map((chunk, index) => (
+      <Stack key={index} spacing={2} direction="row"> 
+        {chunk.map((imageUrl, idx) => (
+          <List key={`${index}-${idx}`}>
+            <ListItem divider>
+              <Grid item xs={12}>
+                <Stack spacing={0.5} direction="row" alignItems="center">
+                  {/* Wrap Avatar with Link or <a> tag */}
+                  <Link target="_blank" href={`${imageUrl}`} passHref>
+                    <a > {/* Opens link in a new tab */}
                       <Avatar 
                         alt={`Menu Image ${index * 3 + idx + 1}`} 
                         variant="rounded" 
                         src={imageUrl} 
-                        sx={{ width: 150, height: 150 }} // Increase the size of the Avatar
+                        sx={{ 
+                          width: 100, 
+                          height: 100, 
+                          border: '2px solid #ccc',  // Example border style, adjust as needed
+                        }} 
                       />
-                    </Stack>
-                  </Grid>
-                </ListItem>
-              </List>
-            ))}
-          </Stack>
+                    </a>
+                  </Link>
+                </Stack>
+              </Grid>
+            </ListItem>
+          </List>
         ))}
       </Stack>
-    </MainCard>
+    ))}
+  </Stack>
+</MainCard>
+
+    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+  <MainCard title="Terms & Conditions">
+    <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+  </MainCard>
+</div>
+
 
           </Stack>
         </Grid>

@@ -164,7 +164,7 @@ export default function Dashboard() {
         </Grid>
         <Grid item xs={12} lg={3}>
           <InvoiceCard />
-        </Grid>
+        </Grid> 
         <Grid item sm={6} md={4} xs={12}>
           <InvoiceUserList />
         </Grid>

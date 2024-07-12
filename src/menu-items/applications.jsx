@@ -1,12 +1,7 @@
 // third-party
 import { FormattedMessage } from 'react-intl';
-
-// project-imports
-import { handlerCustomerDialog } from 'api/customer';
-import { NavActionType } from 'config';
-
 // assets
-import { Add, Link1, KyberNetwork, Messages2, Money, Kanban, Profile2User, Bill, UserSquare, ShoppingBag ,Category,Speaker,User} from 'iconsax-react';
+import { Add, Link1, KyberNetwork, Messages2, Money, Kanban, Profile2User, Bill, UserSquare, ShoppingBag ,Category,Speaker,User,Book} from 'iconsax-react';
 
 // type
 
@@ -24,7 +19,8 @@ const icons = {
   add: Add,
   link: Link1,
   Speaker : Speaker,
-  User : User
+  User : User,
+  Book : Book
 };
 
 // ==============================|| MENU ITEMS - APPLICATIONS ||============================== //
@@ -36,6 +32,16 @@ const applications = {
   type: 'group',
   children: [
     {
+      id: 'EducationalInstitute',
+      title: <FormattedMessage id="Educational Institute" />,
+      type: 'item',
+      icon: icons.Book,
+      url: '/educational-institute/list',
+      children: [
+      
+      ]
+    },
+    {
       id: 'MembershipNumber',
       title: <FormattedMessage id="Membership Number" />,
       type: 'item',
@@ -45,6 +51,17 @@ const applications = {
       
       ]
     },
+    // {
+    //   id: 'AccountSettings',
+    //   title: <FormattedMessage id="Account Settings" />,
+    //   type: 'item',
+    //   icon: icons.Money,
+    //   url: '/account/settings',
+    //   children: [
+      
+    //   ]
+    // },
+   
     {
       id: 'Category',
       title: <FormattedMessage id="Category" />,
@@ -55,6 +72,7 @@ const applications = {
       
       ]
     },
+  
     {
       id: 'Vendor',
       title: <FormattedMessage id="Vendor" />,
@@ -62,18 +80,17 @@ const applications = {
       icon: icons.customer,
       children: [
         {
+          id: 'Aavilable Services',
+          title: <FormattedMessage id="Aavilable Services" />,
+          type: 'item',
+          // icon: icons.add,
+          url: '/Aavilable-Services',
+        },
+        {
           id: 'customer-list',
           title: <FormattedMessage id="Vendor list" />,
           type: 'item',
           url: '/vendor-list',
-          actions: [
-            {
-              type: NavActionType.FUNCTION,
-              label: 'Add Customer',
-              function: () => handlerCustomerDialog(true),
-              icon: icons.add
-            }
-          ]
         },
         {
           id: 'customer-card',
@@ -91,7 +108,6 @@ const applications = {
       icon: icons.User,
       url: '/user-list',
       children: [
-      
       ]
     },
     {

@@ -6,6 +6,9 @@ export let ImagePath;
   ImagePath['ECOMMERCE'] = 'e-commerce';
   ImagePath['PROFILE'] = 'profile';
   ImagePath['WIDGET'] = 'widget';
+  ImagePath['UPLOAD'] = 'upload';
+
+  
 })(ImagePath || (ImagePath = {}));
 
 // ==============================|| NEW URL - GET IMAGE URL ||============================== //

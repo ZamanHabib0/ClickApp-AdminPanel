@@ -40,7 +40,7 @@ export default function BasicTreeView() {
         </TreeItem>
         <TreeItem itemId="5" label="Documents">
           <TreeItem itemId="10" label="OSS" />
-          <TreeItem itemId="6" label="MUI">
+          <TreeItem itemId="6" label="MUI"> 
             <TreeItem itemId="8" label="index.js" />
           </TreeItem>
         </TreeItem>
