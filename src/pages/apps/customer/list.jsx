@@ -18,6 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { openSnackbar } from 'api/snackbar';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
 // third-party
 import { PatternFormat } from 'react-number-format';
@@ -99,6 +100,12 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
   }));
 
   return (
+
+   <>
+   <>
+       <Breadcrumb
+  title={true}
+/></>
     <MainCard content={false}>
       <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
         <DebouncedInput
@@ -188,6 +195,7 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
         </Stack>
       </ScrollX>
     </MainCard>
+   </>
   );
 }
 // ==============================|| CUSTOMER LIST ||============================== //

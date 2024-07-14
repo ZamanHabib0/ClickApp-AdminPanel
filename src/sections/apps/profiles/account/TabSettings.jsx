@@ -7,6 +7,10 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import MainCard from 'components/MainCard';
 import AnimateButton from 'components/@extended/AnimateButton';
+import ReactQuill from '../../../../sections/forms/plugins/ReactQuill'
+import useConfig from 'hooks/useConfig';
+import { useTheme } from '@mui/material/styles';
+import { openSnackbar } from 'api/snackbar';
 
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -17,11 +21,16 @@ const validationSchema = yup.object({
   instagramUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   privacyPolicyUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   howToUseUrl: yup.string().url('Enter a valid URL').required('URL is required'),
-  buyNowUrl: yup.string().url('Enter a valid URL').required('URL is required')
+  buyNowUrl: yup.string().url('Enter a valid URL').required('URL is required'),
+  // TermsandConditionsurl: yup.string().required('Terms & Conditions is required')
 });
 
 export default function TabSettings() {
   const [isEditing, setIsEditing] = useState(false);
+  const [TermsandConditionsurl, setTermsAndCondition] = useState('');
+  const { mode, themeDirection } = useConfig();
+  const theme = useTheme();
+
   const [initialValues, setInitialValues] = useState({
     supportEmail: '',
     tiktokUrl: '',
@@ -29,7 +38,8 @@ export default function TabSettings() {
     instagramUrl: '',
     privacyPolicyUrl: '',
     howToUseUrl: '',
-    buyNowUrl: ''
+    buyNowUrl: '',
+    // TermsandConditionsurl: ''
   });
 
   useEffect(() => {
@@ -42,17 +52,27 @@ export default function TabSettings() {
           tiktokUrl: data.tiktokUrl || '',
           facebookUrl: data.facebookUrl || '',
           instagramUrl: data.instagramUrl || '',
-          termsConditionsUrl: data.termsConditionsUrl || '',
           privacyPolicyUrl: data.privacyPolicyUrl || '',
           howToUseUrl: data.HowToUse || '',
-          buyNowUrl: data.BuyNow || ''
+          buyNowUrl: data.BuyNow || '',
         });
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error); 
+      }
+    };
+
+    const fetchTermsAndConditions = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/v1/termsandcondition/termsAndConditions`);
+        const data = response.data.data.content;
+        setTermsAndCondition(data || '');
+      } catch (error) {
+        console.error('Error fetching terms and conditions:', error);
       }
     };
 
     fetchData();
+    fetchTermsAndConditions();
   }, []);
 
   const formik = useFormik({
@@ -60,7 +80,13 @@ export default function TabSettings() {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      console.log('Submitting form with values:', values);
+
+      const payload = {
+        ...values,
+      };
+
+
+
 
       try {
         const token = localStorage.getItem('authToken');
@@ -71,7 +97,7 @@ export default function TabSettings() {
           }
         };
 
-        const response = await axios.post(`${baseUrl}/v1/adminpanel/accountSettings`, values, config);
+        const response = await axios.post(`${baseUrl}/v1/adminpanel/accountSettings`, payload, config);
         console.log('API response:', response);
         // Add the logic for opening a snackbar
         setIsEditing(false); // Disable editing after successful submission
@@ -81,13 +107,71 @@ export default function TabSettings() {
     }
   });
 
-  const handleEditClick = () => {
+  const handleEditClick = async () => {
     if (isEditing) {
-      formik.handleSubmit();
+      try {
+        await formik.handleSubmit(); // Wait for form submission to complete
+        await postTermsCondition(); // Wait for terms condition post to complete
+  
+        // Both actions completed successfully, open snackbar
+        openSnackbar({
+          open: true,
+          message: 'Account Settings updated successfully.',
+          variant: 'alert',
+          alert: {
+            color: 'success'
+          }
+        });
+      } catch (error) {
+        openSnackbar({
+          open: true,
+          message: 'Failed to update Account Settings',
+          variant: 'alert',
+          alert: {
+            color: 'success'
+          }
+        });
+      }
     } else {
       setIsEditing(true);
     }
   };
+  
+
+  const postTermsCondition = async () => {
+
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    let content ={
+      content : TermsandConditionsurl
+    }
+
+    try {
+      const res = await axios.post(`${baseUrl}/v1/termsandcondition/termsAndConditions`, content, config, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setTermsAndCondition(res.data.data.content);
+      openSnackbar({
+        open: true,
+        message: 'Account Settings updated successfully.',
+        variant: 'alert',
+        alert: {
+          color: 'success'
+        }
+      });
+    } catch (error) {
+      console.error('Error posting data:', error);
+    }
+  };
+
 
   return (
     <Grid container spacing={2}>
@@ -231,6 +315,8 @@ export default function TabSettings() {
                   />
                 </Stack>
               </Grid>
+
+
               <Grid item xs={12}>
                 <Stack direction="row" justifyContent="flex-end">
                   <AnimateButton>
@@ -244,6 +330,49 @@ export default function TabSettings() {
           </form>
         </MainCard>
       </Grid>
+      <Grid
+        item
+        xs={12}
+        sx={{
+          '& .quill': {
+            bgcolor: mode === 'dark' ? 'dark.main' : 'secondary.lighter',
+            borderRadius: '4px',
+            '& .ql-toolbar': {
+              bgcolor: mode === 'dark' ? 'dark.light' : 'secondary.100',
+              borderColor: theme.palette.divider,
+              borderTopLeftRadius: '4px',
+              borderTopRightRadius: '4px'
+            },
+            '& .ql-container': {
+              borderColor: `${theme.palette.divider} !important`,
+              borderBottomLeftRadius: '4px',
+              borderBottomRightRadius: '4px',
+              '& .ql-editor': { minHeight: 135 }
+            },
+            '& .ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg': {
+              position: themeDirection === 'rtl' ? 'initial' : 'absolute'
+            }
+          }
+        }}
+      >
+        <MainCard title="Terms and Condition">
+          <ReactQuill
+            termsandCondition={TermsandConditionsurl}
+            setTermsandCondition={setTermsAndCondition}
+            readOnly={!isEditing}
+          />
+        </MainCard>
+      </Grid>
+      <Grid item xs={12}>
+        <Stack direction="row" justifyContent="flex-end">
+          <AnimateButton>
+            <Button variant="contained" onClick={handleEditClick}>
+              {isEditing ? 'Submit' : 'Edit'}
+            </Button>
+          </AnimateButton>
+        </Stack>
+      </Grid>
     </Grid>
+
   );
 }

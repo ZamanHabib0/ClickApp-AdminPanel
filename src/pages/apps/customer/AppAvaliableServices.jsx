@@ -17,6 +17,7 @@ import TableContainer from '@mui/material/TableContainer';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
 // third-party
 import { PatternFormat } from 'react-number-format';
@@ -102,6 +103,7 @@ function ReactTable({ columns, modalToggler, data, open }) {
   );
 
   return (
+
     <MainCard content={false}>
       <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
         <DebouncedInput
@@ -286,9 +288,13 @@ const CustomerListPage = () => {
       // Handle error state
     }
   }, [customersLoading, customersError, customersValidating]);
-
+ 
   return (
     <>
+    <><Breadcrumb
+  // card 
+  title={true}
+/></>
       <ReactTable
         {...{
           columns,

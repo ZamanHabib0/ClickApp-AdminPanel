@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useMemo, useState, Fragment, useEffect } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
  
 const baseUrl = import.meta.env.VITE_APP_API_URL
@@ -138,6 +139,11 @@ function ReactTable({  columns }) {
   };
 
   return (
+  <>
+<>      <Breadcrumb
+  title={true}
+/>
+</>
     <MainCard content={false}>
       <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ p: 3 }}>
         <DebouncedInput
@@ -228,7 +234,7 @@ function ReactTable({  columns }) {
           </>
         </Stack>
       </ScrollX>
-    </MainCard>
+    </MainCard></>
   );
 }
 
@@ -362,7 +368,6 @@ export default function ProductList() {
 
   return (
     <>
-      {/* <Breadcrumbs custom heading="Users List" links={breadcrumbLinks} /> */}
       <ReactTable {...{ data: products, columns }} />
     </>
   );

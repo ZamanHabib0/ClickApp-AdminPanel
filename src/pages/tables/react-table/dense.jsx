@@ -19,6 +19,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import MenuItem from '@mui/material/MenuItem';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
 // third-party
 import { flexRender, useReactTable, getCoreRowModel } from '@tanstack/react-table';
@@ -89,6 +90,12 @@ function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCatego
   }, []);
 
   return (
+    
+  <>
+         <>
+    <Breadcrumb
+  title={true}
+/></>
     <MainCard content={false} title={title} secondary={<CSVExport {...{ data: data, headers, filename: 'Report.csv' }} />}>
       <ScrollX>
         <Grid container>
@@ -187,7 +194,7 @@ function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCatego
           </Table>
         </TableContainer>
       </ScrollX>
-    </MainCard>
+    </MainCard></>
   );
 }
 
@@ -262,6 +269,7 @@ export default function DenseTable() {
   
 
   return (
+    
     <ReactTable
       data={offers}
       columns={columns}

@@ -17,6 +17,8 @@ import TableContainer from '@mui/material/TableContainer';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
+
 
 // third-party
 import { PatternFormat } from 'react-number-format';
@@ -289,6 +291,10 @@ const CustomerListPage = () => {
 
   return (
     <>
+       <>
+    <Breadcrumb
+  title={true}
+/></>
       <ReactTable
         {...{
           columns,

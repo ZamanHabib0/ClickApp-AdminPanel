@@ -12,6 +12,7 @@ import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
 // project-imports
 import EmptyUserCard from 'components/cards/skeleton/EmptyUserCard';
@@ -126,6 +127,10 @@ export default function CustomerCardPage() {
 
   return (
     <>
+         <>
+    <Breadcrumb
+  title={true}
+/></>
       <Box sx={{ position: 'relative', marginBottom: 3 }}>
         <Stack direction="row" alignItems="center">
           <Stack

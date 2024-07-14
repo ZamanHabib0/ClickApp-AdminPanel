@@ -36,6 +36,7 @@ import {
   getFilteredRowModel,
   useReactTable
 } from '@tanstack/react-table';
+import Breadcrumb from 'components/@extended/Breadcrumbs';
 
 
 import {
@@ -228,6 +229,10 @@ const CustomerListPage = () => {
 
   return (
     <>
+         <>
+    <Breadcrumb
+  title={true}
+/></>
       <ReactTable columns={columns} data={data} />
       <AlertCustomerDelete id={customerDeleteId} title={customerTitle} open={open} handleClose={handleClose} />
       <CategoryModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} />
