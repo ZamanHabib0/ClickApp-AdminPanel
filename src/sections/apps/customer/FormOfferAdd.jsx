@@ -10,6 +10,8 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Radio from '@mui/material/Radio';
 import Button from '@mui/material/Button';
+import  Checkbox  from '@mui/material/Checkbox';
+
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
@@ -110,8 +112,11 @@ const getInitialValues = (customer) => {
         // buyNumber: '',
         // getNumber: '',
         image: null,
-        offerForEachUser: "",
-        vendorBranch: ""
+        offerForEachUser: 0,
+        vendorBranch: "",
+        offerRedeemCode : '',
+        limitedOffer : false
+
     };
 
     if (customer) {
@@ -135,7 +140,6 @@ const alltypevendor = [
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
 
 export default function FormOfferAdd({ customer, closeModal, offer, get }) {
-    console.log(offer, 'cjk----------')
     const theme = useTheme();
 
     const [loading, setLoading] = useState(true);
@@ -147,7 +151,6 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
         getImageUrl(`avatar-${customer && customer !== null && customer?.avatar ? customer.avatar : 1}.png`, ImagePath.USERS)
     );
 
-    // console.log("customer.vendor "+ )
 
     useEffect(() => {
         if (selectedImage) {
@@ -164,6 +167,7 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
         description: Yup.string().max(255).required('Description is required'),
         vendor: Yup.string().required('Vendor is required'),
         offerType: Yup.string().max(255).required('Offer type is required'),
+        // offerRedeemCode: Yup.string().max(255).required('Offer Redeem Code type is required'),
         expirationDate: Yup.date().required('Expire date is required'),
         image: Yup.mixed()
             .required('An image is required')
@@ -183,7 +187,6 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
                 const response = await axios.get(`${baseUrl}/v1/vendor/getVendor?limit=9999&page=1`);
 
                 // const dat=response.data?.data?.vendors
-                // console.log(dat,'data')
                 setVendors(response?.data?.data?.vendors); // Assuming response.data contains the vendor list
             } catch (error) {
                 console.error('Error fetching vendors:', error);
@@ -245,6 +248,9 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
                 formData.append('description', values.description);
                 formData.append('expirationDate', values.expirationDate);
                 formData.append('offerType', values.offerType);
+                formData.append('offerRedeemCode', values.offerRedeemCode);
+                formData.append('limitedOffer', values.limitedOffer);
+
                 formData.append('offerForEachUser', values.offerForEachUser);
                 if(selectedImage){
                     formData.append('image', selectedImage);
@@ -301,11 +307,10 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
 
 
     //   const matchedVendor = vendors.find(vendor => vendor._id === vendorId);
-    //   console.log("matchingVendorNames" + matchedVendor + vendors[0].name )
 
 
 
-    const { errors, touched, handleSubmit, isSubmitting, getFieldProps, setFieldValue } = formik;
+    const { values,errors, touched, handleSubmit, isSubmitting, getFieldProps, setFieldValue } = formik;
 
     if (loading)
         return (
@@ -409,6 +414,8 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
                                             </Stack>
                                         </Grid>
 
+                                       
+
                                         <Grid item xs={12}>
                                             <Stack spacing={1}>
                                                 <InputLabel htmlFor="offerType">Offer Type</InputLabel>
@@ -424,7 +431,26 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
                                                 </FormControl>
                                             </Stack>
                                         </Grid>
-
+                                        
+                                  
+                                    {customer ? 
+                                        <Grid item xs={12}>
+                                            <Stack spacing={1}>
+                                                <InputLabel htmlFor="offerRedeemCode">Offer Redeem Code</InputLabel>
+                                                <FormControl fullWidth>
+                                                    <TextField
+                                                        id="offerRedeemCode"
+                                                        placeholder="Enter Offer Redeem Code"
+                                                         {...getFieldProps('offerRedeemCode')}
+                                                        variant="outlined"
+                                                        error={touched?.offerRedeemCode && !!errors.offerRedeemCode}
+                                                        helperText={touched?.offerRedeemCode && errors.offerRedeemCode}
+                                                    />
+                                                </FormControl>
+                                            </Stack>
+                                        </Grid>
+  : []
+}
 
                                         <Grid item xs={12} sm={6}>
                                             <Stack spacing={1}>
@@ -464,21 +490,41 @@ export default function FormOfferAdd({ customer, closeModal, offer, get }) {
                                             </Stack>
                                         </Grid>
 
-
-
                                         <Grid item xs={12}>
-                                            <Stack spacing={1}>
-                                                <InputLabel htmlFor="offerForEachUser">Offer For Each User</InputLabel>
-                                                <TextField
-                                                    fullWidth
-                                                    id="offerForEachUser"
-                                                    placeholder="Enter offer For Each User"
-                                                    {...getFieldProps('offerForEachUser')}
-                                                    error={Boolean(touched.offerForEachUser && errors.offerForEachUser)}
-                                                    helperText={touched.offerForEachUser && errors.offerForEachUser}
-                                                />
-                                            </Stack>
-                                        </Grid>
+    <Stack spacing={1}>
+        <InputLabel htmlFor="limitedOffer">Limit Offer</InputLabel>
+        <FormControlLabel
+            control={
+                <Checkbox
+                    id="limitedOffer"
+                    {...getFieldProps('limitedOffer')}
+                    checked={values.limitedOffer || false} // Ensure checkbox is synced with form state
+                    color="primary"
+                />
+            }
+            label="Limited Offer"
+        />
+        {touched.limitedOffer && errors.limitedOffer && (
+            <FormHelperText error>{errors.limitedOffer}</FormHelperText>
+        )}
+    </Stack>
+</Grid>
+
+{values.limitedOffer && (
+    <Grid item xs={12}>
+        <Stack spacing={1}>
+            <InputLabel htmlFor="offerForEachUser">Offer For Each User</InputLabel>
+            <TextField
+                fullWidth
+                id="offerForEachUser"
+                placeholder="Enter offer for each user"
+                {...getFieldProps('offerForEachUser')}
+                error={Boolean(touched.offerForEachUser && errors.offerForEachUser)}
+                helperText={touched.offerForEachUser && errors.offerForEachUser}
+            />
+        </Stack>
+    </Grid>
+)}
 
 
                                     </Grid>

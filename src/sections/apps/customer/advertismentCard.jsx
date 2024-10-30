@@ -50,13 +50,23 @@ export default function CustomerCard({ customer, get }) {
                 customer.isActive = newIsBlocked; // Update customer object status
                 openSnackbar({
                     open: true,
-                    message: 'Advertisment status updated successfully.',
+                    message: response.data.msg,
                     variant: 'alert',
                     alert: {
                         color: 'success'
                     }
                 });
-            }
+            }else{
+                openSnackbar({
+                    open: true,
+                    message: 'Your Advertisment is Expired Kiendly update the date first',
+                    variant: 'alert',
+          
+                    alert: {
+                        color: 'error'
+                    }
+                });
+                }
         } catch (error) {
             console.error('Failed to block/unblock advertisement', error);
         }

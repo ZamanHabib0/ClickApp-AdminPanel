@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-
+import moment from 'moment';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -40,10 +40,10 @@ import { DocumentDownload, Edit, Trash } from 'iconsax-react';
 
 // ==============================|| CUSTOMER - PREVIEW ||============================== //
 
-export default function CustomerPreview({ customer, open, onClose, editCustomer }) {
-  console.log(customer, 'previewcous----------')
+export default function CustomerPreview({ customer, open, onClose }) {
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [openAlert, setOpenAlert] = useState(false);
+
 
   const handleClose = () => {
     setOpenAlert(!openAlert);
@@ -63,15 +63,15 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
         sx={{ '& .MuiDialog-paper': { width: 1024, maxWidth: 1, m: { xs: 1.75, sm: 2.5, md: 4 } } }}
       >
         <Box id="PopupPrint" sx={{ px: { xs: 2, sm: 3, md: 5 }, py: 1 }}>
-        
-          <DialogContent  sx={{ px: 0 }}>
+
+          <DialogContent sx={{ px: 0 }}>
             <SimpleBar sx={{ height: 'calc(100vh - 290px)' }}>
               <Grid container spacing={3}>
 
                 <Grid item xs={12} sm={4} xl={3}>
                   <Box mb={2}>
                     <MainCard>
-                      <Typography variant='h5' color="primary"sx={{ paddingBottom: '10px' }}>
+                      <Typography variant='h5' color="primary" sx={{ paddingBottom: '10px' }}>
                         Banner Image
                       </Typography>
                       <img src={customer?.image} alt='customerimage' style={{ width: '100%', height: '200px', borderRadius: "10px" }} />
@@ -80,7 +80,7 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
 
                   <Box mb={2}>
                     <MainCard>
-                      <Typography variant='h5'color="primary" sx={{ paddingBottom: '10px' }}>
+                      <Typography variant='h5' color="primary" sx={{ paddingBottom: '10px' }}>
                         QR Code
                       </Typography>
                       <img src={customer?.qrCode} alt='customerimage' style={{ width: '100%', height: '200px', borderRadius: "10px" }} />
@@ -114,8 +114,8 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
                                 <Stack spacing={0.5}>
                                   <Typography color="primary" variant='h5'>
                                     Expiration Date</Typography>
-                                  <Typography>{customer.
-                                    expirationDate}</Typography>
+                                  <Typography>
+                                    {moment(customer.expirationDate).format('YYYY-MM-DD')}</Typography>
                                 </Stack>
                               </Grid>
                             </Grid>
@@ -124,33 +124,44 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
                             <Grid container spacing={matchDownMD ? 0.5 : 3}>
                               <Grid item xs={12} md={6}>
                                 <Stack spacing={0.5}>
-                                <Typography color="primary" variant='h5'>
+                                  <Typography color="primary" variant='h5'>
                                     OfferType
                                   </Typography>
                                   <Typography>{customer.
                                     offerType
                                   }</Typography>
-                                 
+
                                 </Stack>
                               </Grid>
                               <Grid item xs={12} md={6}>
                                 <Stack spacing={0.5}>
-                                <Typography color="primary" variant='h5'>
-                                    NumberOfUserToAvail
+                                  <Typography color="primary" variant='h5'>
+                                    Offer For Each User
                                   </Typography>
                                   <Typography>{customer.
-                                    numberOfUserToAvail
+                                    offerForEachUser
                                   }</Typography>
                                 </Stack>
                               </Grid>
                               <Grid item xs={12} md={6}>
                                 <Stack spacing={0.5}>
-                                <Typography color="primary" variant='h5'>
-                                isActive
+                                  <Typography color="primary" variant='h5'>
+                                    Status
                                   </Typography>
-                                  <Typography>{customer.isDisable
-                                  }</Typography>
+                                  <Typography>
+                                    {(customer.isDisable) ? "InActive" : "Active"}</Typography>
                                 </Stack>
+                                
+                              </Grid>
+                              <Grid item xs={12} md={6}>
+                                <Stack spacing={0.5}>
+                                  <Typography color="primary" variant='h5'>
+                                    Offer Redeem Code
+                                  </Typography>
+                                  <Typography>
+                                    {customer.offerRedeemCode}</Typography>
+                                </Stack>
+                                
                               </Grid>
                             </Grid>
                           </ListItem>
@@ -166,7 +177,7 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
                               <Grid item xs={12} md={6}>
                                 <Stack spacing={0.5}>
                                   <Typography color="primary" variant='h5'>
-                                  Offer Branch</Typography>
+                                    Offer Branch</Typography>
                                   <Typography>{matchedBranch?.address}</Typography>
                                 </Stack>
                               </Grid>
@@ -176,21 +187,21 @@ export default function CustomerPreview({ customer, open, onClose, editCustomer 
                             <Grid container spacing={matchDownMD ? 0.5 : 3}>
                               <Grid item xs={12} md={6}>
                                 <Stack spacing={0.5}>
-                                <Typography color="primary" variant='h5'>
-                                Branch Contact
+                                  <Typography color="primary" variant='h5'>
+                                    Branch Contact
                                   </Typography>
                                   <Typography>{matchedBranch?.telephone
                                   }</Typography>
-                                 
+
                                 </Stack>
                               </Grid>
-                             
+
                             </Grid>
                           </ListItem>
                         </List>
                       </MainCard>
                     </Grid>
-                 
+
                   </Grid>
                 </Grid>
 

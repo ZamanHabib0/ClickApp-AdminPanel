@@ -19,7 +19,7 @@ import EmptyUserCard from 'components/cards/skeleton/EmptyUserCard';
 import { DebouncedInput } from 'components/third-party/react-table';
 import CustomerCard from 'sections/apps/customer/CustomerCard';
 import CustomerModal from 'sections/apps/customer/CustomerModal';
-
+ 
 import usePagination from 'hooks/usePagination';
 import { useGetCustomer } from 'api/offer';
 
@@ -28,37 +28,6 @@ import { Add, SearchNormal1 } from 'iconsax-react';
 import OfferModal from 'sections/apps/customer/FormModal';
 import axios from 'axios';
 
-// constant
-const allColumns = [
-  {
-    id: 1,
-    header: 'Default'
-  },
-  {
-    id: 2,
-    header: 'title',
-  },
-  {
-    id: 3,
-    header: 'Email'
-  },
-  {
-    id: 4,
-    header: 'Contact'
-  },
-  {
-    id: 5,
-    header: 'Age'
-  },
-  {
-    id: 6,
-    header: 'Country'
-  },
-  {
-    id: 7,
-    header: 'Status'
-  }
-];
 
 function dataSort(data, sortBy) {
   return data.sort(function (a, b) {
@@ -77,7 +46,7 @@ function dataSort(data, sortBy) {
 export default function CustomerCardPage() {
   const matchDownSM = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
-  const { customers, customersLoading, customersError } = useGetCustomer();
+  const { customers, customersLoading, customersError } = useGetCustomer({vendorId: "66956a9415e8ef861baabdb1"});
 
 
   

@@ -110,7 +110,7 @@ function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCatego
                     <Select
                       id="category"
                       displayEmpty
-                      // value={selectedCategory}
+                      value={selectedCategory} // Added value prop
                       onChange={(event) => setSelectedCategory(event.target.value)}
                       input={<OutlinedInput id="select-category" />}
                     >
@@ -131,7 +131,7 @@ function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCatego
                     <Select
                       id="vendor"
                       displayEmpty
-                      // value={selectedVendor}
+                      value={selectedVendor} // Added value prop
                       onChange={(event) => setSelectedVendor(event.target.value)}
                       input={<OutlinedInput id="select-vendor" />}
                     >
@@ -152,7 +152,7 @@ function ReactTable({ columns, data, title, setSelectedVendor, setSelectedCatego
                     <Select
                       id="isActive"
                       displayEmpty
-                      // value={selectedStatus}
+                      value={selectedStatus} // Added value prop
                       onChange={(event) => setSelectedStatus(event.target.value)}
                       input={<OutlinedInput id="select-isActive" placeholder="Sort by" />}
                     >
@@ -211,14 +211,20 @@ export default function DenseTable() {
       const formData = {
         vendor: selectedVendor,
         categoryId: selectedCategory,
-        isDisable: selectedStatus 
+        isDisable: selectedStatus  
       };
 
-      const response = await axios.post(`${baseUrl}/v1/vendor/ReportGenerateOffer`, formData, {
+      const token = localStorage.getItem('authToken');
+
+      const config = {
         headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+  
+
+      const response = await axios.post(`${baseUrl}/v1/report/reportgenerate`, formData, config )
 
       setOffers(response.data?.data?.offers || []);
     } catch (error) {
@@ -255,7 +261,17 @@ export default function DenseTable() {
       },
       {
         header: 'Offer Count',
-        accessorKey: 'offerForEachUser'
+        accessorKey: 'offerForEachUser', // This is still needed to map to the data key
+        accessorFn: row => row.limitedOffer ?  row.offerForEachUser : "Unlimited"
+      },
+           
+      {
+        header: 'Offer Redeem Code',
+        accessorKey: 'offerRedeemCode'
+      },
+      {
+        header: 'purchase Count',
+        accessorKey: 'purchaseCount'
       },
       {
         header: 'Status',

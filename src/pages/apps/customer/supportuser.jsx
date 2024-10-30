@@ -126,7 +126,6 @@ function ReactTable({ columns, modalToggler }) {
   //       const response = await axios.get(`${baseUrl}/v1/adminpanel/getFeedback`,config);
   //       setData(response.data.data); // Adjust according to the structure of your API response
 
-  //       console.log("data" + data)
   //     } catch (error) {
   //       console.error('Error fetching data:', error);
   //     }

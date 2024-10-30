@@ -208,7 +208,6 @@ const CustomerListPage = () => {
 
   const { customers, customersLoading, customersError, customersValidating } = useGetCustomer();
 
-  // console.log("customers " + customers[0].categoryName )
 
   const data = customers || [];
 

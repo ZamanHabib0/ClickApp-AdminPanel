@@ -25,7 +25,7 @@ const baseUrl = import.meta.env.VITE_APP_API_URL;
 
 export default function FormCategoryAdd({ customer, closeModal }) {
   const theme = useTheme();
-  const [memberShipNumber, setMemberShipNumber] = useState(undefined);
+  const [memberShipNumber, setMemberShipNumber] = useState(''); // Set initial state to an empty string
   const { mutate } = useSWRConfig();
   const { customersLoading: loading, customers: lists } = useGetCustomer();
 
@@ -34,7 +34,7 @@ export default function FormCategoryAdd({ customer, closeModal }) {
       const token = localStorage.getItem('authToken');
       const config = {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       };
 
@@ -44,7 +44,6 @@ export default function FormCategoryAdd({ customer, closeModal }) {
       mutate(
         `${baseUrl}/v1/memberShipNumber/getMemberShipNumbers`,
         async (lists) => {
-          // Ensure you correctly update the SWR cache with the new data structure
           const updatedList = [...(lists.data || []), response.data.data];
           return { data: updatedList };
         },
@@ -119,7 +118,7 @@ export default function FormCategoryAdd({ customer, closeModal }) {
             <Grid item>
               {customer && (
                 <Tooltip title="Delete Category" placement="top">
-                  <IconButton onClick={() => { console.log("customer" + customer._id), setOpenAlert(true) }} size="large" color="error">
+                  <IconButton onClick={() => { setOpenAlert(true) }} size="large" color="error">
                     <Trash variant="Bold" />
                   </IconButton>
                 </Tooltip>

@@ -79,4 +79,4 @@ export default function AlertCustomerDelete({ id, title, open, handleClose }) {
   );
 }
 
-AlertCustomerDelete.propTypes = { id: PropTypes.number, title: PropTypes.string, open: PropTypes.bool, handleClose: PropTypes.func };
+AlertCustomerDelete.propTypes = { id: PropTypes.string, title: PropTypes.string, open: PropTypes.bool, handleClose: PropTypes.func };

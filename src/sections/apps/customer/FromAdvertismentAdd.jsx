@@ -84,7 +84,6 @@ const alltypevendor = [
 // ==============================|| CUSTOMER ADD / EDIT - FORM ||============================== //
 
 export default function FormOfferAdd({ customer, closeModal, offer,get }) {
-    console.log(offer, 'cjk----------')
     const theme = useTheme();
 
     const [loading, setLoading] = useState(true);
@@ -109,7 +108,8 @@ export default function FormOfferAdd({ customer, closeModal, offer,get }) {
         description: Yup.string().max(255).required('Description is required'),
         expirationDate: Yup.date().required('Expire date is required'),
         image: Yup.mixed()
-            .required('An image is required')
+            .required('An image is required'),
+            socialUrl : Yup.string().max(255).required('Social Link is required'),
     });
 
     const [openAlert, setOpenAlert] = useState(false);
@@ -137,6 +137,9 @@ export default function FormOfferAdd({ customer, closeModal, offer,get }) {
                 formData.append('description', values.description);
                 formData.append('expirationDate', values.expirationDate);
                 formData.append('image', values.image);
+                formData.append('socialUrl', values.socialLink);
+
+
 
                 let newCustomer = { ...values }; 
 
@@ -230,29 +233,22 @@ export default function FormOfferAdd({ customer, closeModal, offer,get }) {
                                             </Stack>
                                         </Grid>
 
-                                        {/* <Grid item xs={12}>
+                                        <Grid item xs={12}>
                                             <Stack spacing={1}>
-                                                <InputLabel htmlFor="vendor">Vendor</InputLabel>
+                                                <InputLabel htmlFor="SocialLink">Social Link</InputLabel>
                                                 <FormControl fullWidth>
-                                                    <Select
-                                                        id="vendor"
-                                                        displayEmpty
-                                                        {...getFieldProps('vendor')}
-                                                        input={<OutlinedInput id="select-vendor" />}
-                                                    >
-                                                        <MenuItem value="">Select Vendor</MenuItem>
-                                                        {vendors?.map((vendor) => (
-                                                            <MenuItem key={vendor._id} value={vendor._id}>
-                                                                {vendor.name}
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    {touched?.vendor && errors.vendor && (
-                                                        <FormHelperText error>{errors.vendor}</FormHelperText>
-                                                    )}
+                                                <TextField
+                                                    fullWidth
+                                                    id="socialLink"
+                                                    placeholder="Enter Social Link"
+                                                    {...getFieldProps('socialUrl')}
+                                                    error={Boolean(touched.socialUrl && errors.socialUrl)}
+                                                    helperText={touched.socialUrl && errors.socialUrl}
+                                                />
+                                                   
                                                 </FormControl>
                                             </Stack>
-                                        </Grid> */}
+                                        </Grid>
 
                                         <Grid item xs={12} sm={6}>
                                             <Stack spacing={1}>

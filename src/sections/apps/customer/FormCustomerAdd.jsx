@@ -122,12 +122,7 @@ export default function FormCustomerAdd({ customer, closeModal }) {
       }
     });
   };
-  
-
-
-
-
-  const [list, setList] = useState(false);
+ const [list, setList] = useState(false);
   const [galleryList, setGalleryList] = useState(false);
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -157,7 +152,6 @@ export default function FormCustomerAdd({ customer, closeModal }) {
 
       const dat = response.data?.data.categories
 
-      console.log(dat, 'd---------')
       setVendors(response?.data?.data?.categories); // Assuming response.data contains the vendor list
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -174,10 +168,6 @@ export default function FormCustomerAdd({ customer, closeModal }) {
     }
     setLoading(false);
   };
-
-
-
-
   useEffect(() => {
 
     fetchServices();
@@ -285,9 +275,6 @@ export default function FormCustomerAdd({ customer, closeModal }) {
     customer.gallery = []
   }
 
-
-
-
   const onRemove = (imageUrl) => {
     const filteredImages = menuImages.filter((image) => image !== imageUrl);
     setMenuImages(filteredImages);
@@ -324,7 +311,6 @@ export default function FormCustomerAdd({ customer, closeModal }) {
 
   // const selectedMenu = imageArray.split(',');
 
-  console.log("customer.menu " + selectedMenu)
 
   const selectedCategory = customer?.category ? vendors.find(vendor => vendor._id === customer.category) : null;
 
@@ -339,7 +325,6 @@ export default function FormCustomerAdd({ customer, closeModal }) {
   // const chunkedGallery = data?.gallery ? chunkArray(data.gallery, 3) : [];
 
 
-  console.log("selectedMenu " + selectedMenu)
 
 
 

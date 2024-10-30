@@ -17,7 +17,6 @@ import FormOfferAdd from './FormOfferAdd';
 // ==============================|| CUSTOMER ADD / EDIT ||============================== //
 
 export default function CustomerModal({ open, modalToggler, customer }) {
-  console.log(customer,'cust')
   const { customersLoading: loading } = useGetCustomer();
 
   const closeModal = () => modalToggler(false);

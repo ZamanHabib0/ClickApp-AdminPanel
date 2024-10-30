@@ -120,7 +120,6 @@ export async function deleteCustomer(customerId) {
     await axios.delete(`${baseUrl}/v1/advertisement/${customerId}/deleteAdvertisements`, config);
 
     mutate(`${baseUrl}/v1/advertisement/adminpanel`, (currentCustomer) => {
-      console.log('Current Customer Data before Delete:', currentCustomer?.data);
       const nonDeletedCustomers = (currentCustomer?.data || []).filter((customer) => customer._id !== customerId);
 
       return {

@@ -50,7 +50,6 @@ export async function insertOffer(newCustomer) {
 
     const response = await axios.post(`${baseUrl}/v1/vendor/addVendorOffer`, newCustomer, config);
 
-    console.log('Insert Offer Response:', response.data); // Debugging log
 
     mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
       return {
@@ -88,7 +87,6 @@ export async function updateOffer(offerId, updatedCustomer) {
 
     const response = await axios.post(`${baseUrl}/v1/vendor/${offerId}/updateVendorOffer`, updatedCustomer, config);
 
-    console.log('Update Offer Response:', response.data); // Debugging log
 
     mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
       const updatedOffers = currentData.data.offers.map((offer) =>
@@ -122,7 +120,6 @@ export async function deleteOffer(customerId) {
 
     const response = await axios.delete(`${baseUrl}/v1/vendor/${customerId}/deleteOffer`, config);
 
-    console.log('Delete Offer Response:', response.data); // Debugging log
 
     mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
       const remainingOffers = currentData.data.offers.filter((offer) => offer._id !== customerId);

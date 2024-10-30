@@ -46,7 +46,6 @@ export default function InvoiceModal({ isOpen, setIsOpen, invoiceInfo, items, on
     date = format(new Date(invoiceInfo.date), 'dd/mm/yyyy');
     dueDate = format(new Date(invoiceInfo.due_date), 'dd/MM/yyyy');
   } catch (error) {
-    console.log('error - ', error);
   }
 
   const subtotal = invoiceInfo?.invoice_detail?.reduce((prev, curr) => {

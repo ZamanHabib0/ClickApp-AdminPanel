@@ -18,13 +18,14 @@ import { Trash } from 'iconsax-react';
 import { deleteOffer } from 'api/offer';
 
 // ==============================|| CUSTOMER - DELETE ||============================== //
-
+ 
 export default function AlertOfferDelete({ id, title, open, handleClose,get }) {
   const deletehandler = async () => {
     await deleteOffer(id).then(() => {
+      handleClose();
       openSnackbar({
         open: true,
-        message: 'Customer deleted successfully',
+        message: 'Offer deleted successfully',
         anchorOrigin: { vertical: 'top', horizontal: 'right' },
         variant: 'alert',
 
@@ -34,7 +35,6 @@ export default function AlertOfferDelete({ id, title, open, handleClose,get }) {
       });
       get(true)
       // window.location.reload();
-      handleClose();
     });
   };
 

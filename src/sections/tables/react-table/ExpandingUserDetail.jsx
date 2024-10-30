@@ -26,7 +26,6 @@ import { Call, Location, Sms } from 'iconsax-react';
 // ==============================|| EXPANDING TABLE - USER DETAILS ||============================== //
 
 export default function ExpandingUserDetail({ data }) {
-  console.log(data,'dataexpand------')
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
   return (

@@ -56,8 +56,8 @@ export default function AuthLogin({ forgot }) {
         //   submit: null
         // }}
          initialValues={{
-          email: 'admin@click.app',
-          password: '123456',
+          email: '',
+          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -69,16 +69,13 @@ export default function AuthLogin({ forgot }) {
             await login(values.email, values.password);
            
             if (scriptedRef.current) {
-              console.log("hi dude")
               setStatus({ success: true });
               setSubmitting(false);
               // preload('/v1/adminpanel/dashboard', fetcher); // load menu on login success
             }else {
-              console.log("hi")
               setErrors({ submit: scriptedRef.current.msg });
             }
           } catch (err) {
-            console.log("err " + err);
               if (err.response && err.response.status === 401) {
               setErrors({ submit: "Unauthorized access - possibly invalid credentials."});
               setSubmitting(false);

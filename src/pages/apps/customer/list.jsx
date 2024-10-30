@@ -19,6 +19,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { openSnackbar } from 'api/snackbar';
 import Breadcrumb from 'components/@extended/Breadcrumbs';
+import OfferModal from 'sections/apps/customer/FormModal';
 
 // third-party
 import { PatternFormat } from 'react-number-format';
@@ -56,7 +57,7 @@ import { useGetCustomer } from 'api/customer';
 import { ImagePath, getImageUrl } from 'utils/getImageUrl';
 
 // assets
-import { Add, Edit, Eye, Trash ,Lock ,Unlock} from 'iconsax-react';
+import { Add, Edit, Eye, Trash, Lock, Unlock } from 'iconsax-react';
 import axios from 'axios';
 import { height, width } from '@mui/system';
 
@@ -101,101 +102,101 @@ function ReactTable({ data, columns, modalToggler, open, setData }) {
 
   return (
 
-   <>
-   <>
-       <Breadcrumb
-  title={true}
-/></>
-    <MainCard content={false}>
-      <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
-        <DebouncedInput
-          value={globalFilter ?? ''}
-          onFilterChange={(value) => setGlobalFilter(String(value))}
-          placeholder={`Search ${data.length} records...`}
-        />
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <SelectColumnSorting {...{ getState: table.getState, getAllColumns: table.getAllColumns, setSorting }} />
-          <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
-            Add Vendor
-          </Button>
+    <>
+      <>
+        <Breadcrumb
+          title={true}
+        /></>
+      <MainCard content={false}>
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
+          <DebouncedInput
+            value={globalFilter ?? ''}
+            onFilterChange={(value) => setGlobalFilter(String(value))}
+            placeholder={`Search ${data.length} records...`}
+          />
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <SelectColumnSorting {...{ getState: table.getState, getAllColumns: table.getAllColumns, setSorting }} />
+            <Button variant="contained" startIcon={<Add />} onClick={modalToggler} size="large">
+              Add Vendor
+            </Button>
+          </Stack>
         </Stack>
-      </Stack>
-      <ScrollX>
-        <Stack>
-          <RowSelection selected={Object.keys(rowSelection).length} />
-          <TableContainer>
-            <Table>
-              <TableHead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
-                        Object.assign(header.column.columnDef.meta, {
-                          className: header.column.columnDef.meta.className + ' cursor-pointer prevent-select'
-                        });
-                      }
+        <ScrollX>
+          <Stack>
+            <RowSelection selected={Object.keys(rowSelection).length} />
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        if (header.column.columnDef.meta !== undefined && header.column.getCanSort()) {
+                          Object.assign(header.column.columnDef.meta, {
+                            className: header.column.columnDef.meta.className + ' cursor-pointer prevent-select'
+                          });
+                        }
 
-                      return (
-                        <TableCell
-                          key={header.id}
-                          {...header.column.columnDef.meta}
-                          onClick={header.column.getToggleSortingHandler()}
-                          {...(header.column.getCanSort() &&
-                            header.column.columnDef.meta === undefined && {
+                        return (
+                          <TableCell
+                            key={header.id}
+                            {...header.column.columnDef.meta}
+                            onClick={header.column.getToggleSortingHandler()}
+                            {...(header.column.getCanSort() &&
+                              header.column.columnDef.meta === undefined && {
                               className: 'cursor-pointer prevent-select'
                             })}
-                        >
-                          {header.isPlaceholder ? null : (
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Box>{flexRender(header.column.columnDef.header, header.getContext())}</Box>
-                              {header.column.getCanSort() && <HeaderSort column={header.column} />}
-                            </Stack>
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHead>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <Fragment key={row.id}>
-                    <TableRow>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} {...cell.column.columnDef.meta}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
+                          >
+                            {header.isPlaceholder ? null : (
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <Box>{flexRender(header.column.columnDef.header, header.getContext())}</Box>
+                                {header.column.getCanSort() && <HeaderSort column={header.column} />}
+                              </Stack>
+                            )}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
-                    {row.getIsExpanded() && (
-                      <TableRow sx={{ bgcolor: backColor, '&:hover': { bgcolor: `${backColor} !important` }, overflow: 'hidden' }}>
-                        <TableCell colSpan={row.getVisibleCells().length} sx={{ p: 2.5, overflow: 'hidden' }}>
-                          <CustomerView data={row.original} />
-                        </TableCell>
+                  ))}
+                </TableHead>
+                <TableBody>
+                  {table.getRowModel().rows.map((row) => (
+                    <Fragment key={row.id}>
+                      <TableRow>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id} {...cell.column.columnDef.meta}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
                       </TableRow>
-                    )}
-                  </Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <>
-            <Divider />
-            <Box sx={{ p: 2 }}>
-              <TablePagination
-                {...{
-                  setPageSize: table.setPageSize,
-                  setPageIndex: table.setPageIndex,
-                  getState: table.getState,
-                  getPageCount: table.getPageCount
-                }}
-              />
-            </Box>
-          </>
-        </Stack>
-      </ScrollX>
-    </MainCard>
-   </>
+                      {row.getIsExpanded() && (
+                        <TableRow sx={{ bgcolor: backColor, '&:hover': { bgcolor: `${backColor} !important` }, overflow: 'hidden' }}>
+                          <TableCell colSpan={row.getVisibleCells().length} sx={{ p: 2.5, overflow: 'hidden' }}>
+                            <CustomerView data={row.original} />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <>
+              <Divider />
+              <Box sx={{ p: 2 }}>
+                <TablePagination
+                  {...{
+                    setPageSize: table.setPageSize,
+                    setPageIndex: table.setPageIndex,
+                    getState: table.getState,
+                    getPageCount: table.getPageCount
+                  }}
+                />
+              </Box>
+            </>
+          </Stack>
+        </ScrollX>
+      </MainCard>
+    </>
   );
 }
 // ==============================|| CUSTOMER LIST ||============================== //
@@ -204,6 +205,8 @@ export default function CustomerListPage() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [customerModal, setCustomerModal] = useState(false);
+  const [offerModal, setOfferModal] = useState(false);
+
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [customerDeleteId, setCustomerDeleteId] = useState('');
   const [customerDeleteName, setCustomerDeleteName] = useState('');
@@ -216,7 +219,7 @@ export default function CustomerListPage() {
       setData(customers);
     }
   }, [customers]);
-  
+
 
   const lists = customers;
 
@@ -227,7 +230,6 @@ export default function CustomerListPage() {
   const handleViewClick = async (vendorId) => {
     try {
       const vendorOffer = await getOfferOfVendor(vendorId);
-      console.log('Vendor Offer:', vendorOffer);
     } catch (error) {
       console.error('Failed to fetch vendor offer:', error);
     }
@@ -243,7 +245,7 @@ export default function CustomerListPage() {
             <Avatar
               alt="Avatar"
               size="sm"
-              sx={{ borderRadius: "10px",height : "60px" ,width : "60px"}}
+              sx={{ borderRadius: "10px", height: "60px", width: "60px" }}
               src={row.original.logo} // Assuming `logo` is the field in your data containing the logo URL
             />
             <Stack spacing={0}>
@@ -278,7 +280,7 @@ export default function CustomerListPage() {
         disableSortBy: true,
         cell: ({ row }) => {
           const [isBlocked, setIsBlocked] = useState(row.original.isActive);
-  
+
           const handleBlockUnblock = async () => {
             const userId = row.original._id;
             const isActive = !isBlocked;
@@ -290,12 +292,12 @@ export default function CustomerListPage() {
                   'Content-Type': 'application/json',
                 },
               };
-  
+
               const response = await axios.patch(`${baseUrl}/v1/vendor/${userId}/status`, { isActive }, config);
               if (response.status === 200 && !response.data.error) {
                 const updatedVendor = response.data.data;
                 setIsBlocked(isActive);
-  
+
                 // Update the state with the new data
                 setData((prevData) => prevData.map((vendor) =>
                   vendor._id === updatedVendor._id ? updatedVendor : vendor
@@ -304,30 +306,44 @@ export default function CustomerListPage() {
                   open: true,
                   message: `Vendor has successfully ${(isActive) ? "UnBlocked" : "Blocked"}`,
                   variant: 'alert',
-  
+
                   alert: {
-                      color: 'success'
+                    color: 'success'
                   }
-              });
-  
+                });
+
                 // Optionally refetch the data using SWR
                 mutate(`${baseUrl}/v1/vendor/getVendorAdmin?limit=9999&page=1`);
-              
+
               }
             } catch (error) {
               console.error('Failed to block/unblock user', error);
             }
           };
-  
+
           const collapseIcon =
             row.getCanExpand() && row.getIsExpanded() ? (
               <Add style={{ color: theme.palette.error.main, transform: 'rotate(45deg)' }} />
             ) : (
               <Eye />
             );
-  
+
           return (
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0}>
+              <Tooltip title="Add Offer">
+                <IconButton
+                  color="primary"
+                  onClick={() => setOfferModal(true)}
+                  sx={{
+                    border: '1px solid #2f5bdd',
+                    width: 30,
+                    height: 30,
+
+                  }}
+                >
+                  <Add />
+                </IconButton>
+              </Tooltip>
               <Tooltip title={isBlocked ? 'Unblock' : 'Block'}>
                 <IconButton
                   color={isBlocked ? 'secondary' : 'primary'}
@@ -376,7 +392,7 @@ export default function CustomerListPage() {
     ], // eslint-disable-next-line
     [theme]
   );
-  
+
 
   if (customersLoading) return <EmptyReactTable />;
 
@@ -385,7 +401,7 @@ export default function CustomerListPage() {
       <ReactTable
         {...{
           data: lists,
-          open:open,
+          open: open,
           columns,
           modalToggler: () => {
             setCustomerModal(true);
@@ -395,8 +411,10 @@ export default function CustomerListPage() {
       />
       <AlertCustomerDelete id={customerDeleteId} title={customerDeleteName} open={open} handleClose={handleClose} />
       <CustomerModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} />
+      <OfferModal open={offerModal} modalToggler={setOfferModal} />
+
     </>
   );
 }
 
-ReactTable.propTypes = { data: PropTypes.array, columns: PropTypes.array, modalToggler: PropTypes.func,open :PropTypes.any};
+ReactTable.propTypes = { data: PropTypes.array, columns: PropTypes.array, modalToggler: PropTypes.func, open: PropTypes.any };

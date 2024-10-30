@@ -92,12 +92,12 @@ const applications = {
           type: 'item',
           url: '/vendor-list',
         },
-        {
-          id: 'customer-card',
-          title: <FormattedMessage id="Offer" />,
-          type: 'item',
-          url: '/apps/customer/offer'
-        }
+        // {
+        //   id: 'customer-card',
+        //   title: <FormattedMessage id="Offer" />,
+        //   type: 'item',
+        //   url: '/apps/customer/offer'
+        // }
       ]
     },
 

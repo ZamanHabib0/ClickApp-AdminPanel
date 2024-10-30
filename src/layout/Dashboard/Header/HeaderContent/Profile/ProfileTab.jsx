@@ -9,7 +9,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
 // assets
-import { Card, Edit2, Logout, Profile, Profile2User } from 'iconsax-react';
+import { Card, I24Support, Logout, Profile, Brodcast } from 'iconsax-react';
 
 export default function ProfileTab({ handleLogout }) {
   const navigate = useNavigate();
@@ -31,14 +31,22 @@ export default function ProfileTab({ handleLogout }) {
         <ListItemText primary="Account Settings" />
       </ListItemButton>
 
+      <ListItemButton selected={selectedIndex === 4} onClick={(event) => handleListItemClick(event, 4, '/profiles/account/Message-Brodcast')}>
+        <ListItemIcon>
+          <Brodcast variant="Bulk" size={18} />
+        </ListItemIcon>
+        <ListItemText primary="Message Brodcast" />
+      </ListItemButton>
+
       <ListItemButton selected={selectedIndex === 3} onClick={(event) => handleListItemClick(event, 3, '/profiles/account/support-list')}>
         <ListItemIcon>
-          <Profile variant="Bulk" size={18} />
+          <I24Support variant="Bulk" size={18} />
         </ListItemIcon>
         <ListItemText primary="Support" />
       </ListItemButton>
+
     
-      <ListItemButton selected={selectedIndex === 4} onClick={handleLogout}>
+      <ListItemButton selected={selectedIndex === 5} onClick={handleLogout}>
         <ListItemIcon>
           <Logout variant="Bulk" size={18} />
         </ListItemIcon>

@@ -85,7 +85,6 @@ export default function FormCategoryAdd({ customer, closeModal  }) {
 
     const handleImageChange = (event) => {
         if (event.currentTarget.files[0]) {
-            console.log("image" + event.currentTarget.files[0])
             setFieldValue('image', event.currentTarget.files[0]);
             setSelectedImage(event.currentTarget.files[0]);
         }
@@ -238,7 +237,7 @@ export default function FormCategoryAdd({ customer, closeModal  }) {
                                 <Grid item>
                                     {customer && (
                                         <Tooltip title="Delete Category" placement="top">
-                                            <IconButton onClick={() => { console.log("customer" + customer._id), setOpenAlert(true) }} size="large" color="error">
+                                            <IconButton onClick={() => {  setOpenAlert(true) }} size="large" color="error">
                                                 <Trash variant="Bold" />
                                             </IconButton>
                                         </Tooltip>

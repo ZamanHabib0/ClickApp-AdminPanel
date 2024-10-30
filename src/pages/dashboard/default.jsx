@@ -32,10 +32,6 @@ export default function DashboardDefault() {
       
       try {
 
-        console.log("baseUrl" +baseUrl)
-
-        console.log("hi bro counter here")
-
         const token = localStorage.getItem('authToken');
 
         // Configure request headers with token

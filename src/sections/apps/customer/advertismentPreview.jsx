@@ -41,7 +41,6 @@ import { DocumentDownload, Edit, Trash } from 'iconsax-react';
 // ==============================|| CUSTOMER - PREVIEW ||============================== //
 
 export default function CustomerPreview({ customer, open, onClose, editCustomer }) {
-  console.log(customer, 'previewcous----------')
   const matchDownMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [openAlert, setOpenAlert] = useState(false);
 

@@ -17,50 +17,48 @@ export const endpoints = {
   delete: '/delete'
 };
 
-export function useGetCustomer() {
-  const { data, error, isValidating } = useSWR(`${baseUrl}/v1/vendor/getAllOffersAdmin`, fetcher, {
+export function useGetCustomer({ vendorId }) {
+  const { data, error, isValidating } = useSWR(`${baseUrl}/v1/vendor/${vendorId}/getOfferofVendor`, fetcher, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
 
-  const memoizedValue = useMemo(
-    () => ({
-      customers: data?.data?.offers || [],
+  const memoizedValue = useMemo(() => {
+    const offers = data?.data?.offers || [];
+
+    return {
+      customers: offers,
       customersLoading: !error && !data,
       customersError: error,
       customersValidating: isValidating,
-      customersEmpty: !data?.data?.offers?.length
-    }),
-    [data, error, isValidating]
-  );
+      customersEmpty: offers.length === 0
+    };
+  }, [data, error, isValidating]);
 
   return memoizedValue;
 }
 
+// Insert Offer
 export async function insertOffer(newCustomer) {
   try {
     const token = localStorage.getItem('authToken');
     const config = {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
       }
     };
 
     const response = await axios.post(`${baseUrl}/v1/vendor/addVendorOffer`, newCustomer, config);
 
-    console.log('Insert Offer Response:', response.data); // Debugging log
-
-    mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
-      return {
-        ...currentData,
-        data: {
-          ...currentData.data,
-          offers: [...currentData.data.offers, response.data.data]
-        }
-      };
-    }, false);
+    mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => ({
+      ...currentData,
+      data: {
+        ...currentData.data,
+        offers: [...currentData.data.offers, response.data.data]
+      }
+    }), false);
 
     return response.data;
   } catch (error) {
@@ -69,31 +67,28 @@ export async function insertOffer(newCustomer) {
   }
 }
 
+// Update Offer
+// Update Offer
 export async function updateOffer(offerId, updatedCustomer) {
- 
-  if (updatedCustomer.image) {
-    const imageData = new FormData();
-    imageData.append('image', updatedCustomer.image);
-  }
-
-
   try {
     const token = localStorage.getItem('authToken');
     const config = {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
       }
     };
 
     const response = await axios.post(`${baseUrl}/v1/vendor/${offerId}/updateVendorOffer`, updatedCustomer, config);
 
-    console.log('Update Offer Response:', response.data); // Debugging log
-
+    // Use `mutate` to update the cache
     mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
+      // Map over the current offers to replace the updated offer
       const updatedOffers = currentData.data.offers.map((offer) =>
-        offer._id === offerId ? response.data.data : offer
+        offer._id === offerId ? response.data.data : offer // Replace the updated offer
       );
+
+      // Return the new data structure with updated offers
       return {
         ...currentData,
         data: {
@@ -110,19 +105,19 @@ export async function updateOffer(offerId, updatedCustomer) {
   }
 }
 
+
+// Delete Offer
 export async function deleteOffer(customerId) {
   try {
     const token = localStorage.getItem('authToken');
     const config = {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     };
 
-    const response = await axios.delete(`${baseUrl}/v1/vendor/${customerId}/deleteOffer`, config);
-
-    console.log('Delete Offer Response:', response.data); // Debugging log
+    await axios.delete(`${baseUrl}/v1/vendor/${customerId}/deleteOffer`, config);
 
     mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
       const remainingOffers = currentData.data.offers.filter((offer) => offer._id !== customerId);
@@ -134,13 +129,12 @@ export async function deleteOffer(customerId) {
         }
       };
     }, false);
-
-    return response.data;
   } catch (error) {
     console.error('Error deleting vendor:', error);
     throw error;
   }
 }
+
 
 export function useGetCustomerMaster() {
   const { data, isLoading } = useSWR(endpoints.key + endpoints.modal, () => initialState, {

@@ -74,7 +74,6 @@ export function DateColumnFilter({ column: { filterValue, Header, setFilter } })
             try {
               formatDateFn = format(newValue, 'M/d/yyyy');
             } catch (error) {
-              console.log('error - ', error);
             }
             setFilter(formatDateFn || undefined);
           }}

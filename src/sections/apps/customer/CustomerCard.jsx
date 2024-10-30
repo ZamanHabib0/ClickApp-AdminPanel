@@ -36,6 +36,7 @@ import Avatar from 'components/@extended/Avatar';
 import IconButton from 'components/@extended/IconButton';
 import MoreIcon from 'components/@extended/MoreIcon';
 import axios from 'axios';
+import { openSnackbar } from 'api/snackbar';
 
 
 // assets
@@ -46,8 +47,7 @@ import AlertOfferDelete from './AlertOfferDelete';
 
 // ==============================|| CUSTOMER - CARD ||============================== //
 
-export default function CustomerCard({ customer,get }) {
-  console.log(get, 'get')
+export default function CustomerCard({ customer, get }) {
   const [open, setOpen] = useState(false);
   const [customerModal, setCustomerModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -60,7 +60,6 @@ export default function CustomerCard({ customer,get }) {
     setOpen(false);
   };
 
-  console.log("customer.vendorDetails?.name " + customer.vendorDetails?.name)
 
   const [openAlert, setOpenAlert] = useState(false);
 
@@ -87,13 +86,11 @@ export default function CustomerCard({ customer,get }) {
   const formattedDate = moment(customer.expirationDate).format('YYYY-MM-DD');
   customer.expirationDate = formattedDate;
 
-  console.log("customer.isDisable "+ customer.isDisable)
 
   const [isBlocked, setIsBlocked] = useState(customer.isDisable);
 
   const handleBlockUnblock = async () => {
 
-    console.log("function called")
     const offerId = customer._id;
     const isDisable = !isBlocked;
     try {
@@ -106,12 +103,33 @@ export default function CustomerCard({ customer,get }) {
         }
       };
       const response = await axios.patch(`${baseUrl}/v1/vendor/${offerId}/updateOfferStatus`, {
-        
+
         isDisable
-      },config);
+      }, config);
       if (response.status === 200) {
+        openSnackbar({
+          open: true,
+          message: response.data.msg,
+          variant: 'alert',
+
+          alert: {
+              color: 'success'
+          }
+      });
+      console.log("he offer status update here")
         // window.location.reload();
         setIsBlocked(isDisable);
+     
+      }else{
+        openSnackbar({
+          open: true,
+          message: 'Your Offer is Expired Kiendly update the date first',
+          variant: 'alert',
+
+          alert: {
+              color: 'error'
+          }
+      });
       }
     } catch (error) {
       // Handle error
@@ -125,7 +143,7 @@ export default function CustomerCard({ customer,get }) {
       <MainCard sx={{ height: 1, '& .MuiCardContent-root': { height: 1, display: 'flex', flexDirection: 'column' } }}>
         <Grid id="print" container spacing={2.25}>
           <Grid item xs={12}>
-            <img src={customer.image} alt='cardimage' style={{ width: "100%", height: '180px' , borderRadius : "10px"}}>
+            <img src={customer.image} alt='cardimage' style={{ width: "100%", height: '180px', borderRadius: "10px" }}>
 
             </img>
 
@@ -134,7 +152,7 @@ export default function CustomerCard({ customer,get }) {
           <Grid item xs={12}>
             <Divider />
           </Grid>
-  
+
           <Grid item xs={12}>
             <Typography variant='h4'> <strong>Title :</strong> <Typography variant='p'>{customer?.title}</Typography></Typography>
 
@@ -148,11 +166,11 @@ export default function CustomerCard({ customer,get }) {
 
           <Grid item xs={12}>
             <Typography variant="body1">
-            <strong>Offer Status:</strong>    {(customer.isDisable === false) ? "Active" : "InActive"}
+              <strong>Offer Status:</strong>    {(customer.isDisable === false) ? "Active" : "InActive"}
             </Typography>
           </Grid>
 
-       
+
 
           <Grid item xs={12}>
             <Typography variant='p'> <strong>Expiration Date :</strong> <Typography variant='p'>{customer?.expirationDate}</Typography></Typography>
@@ -192,40 +210,40 @@ export default function CustomerCard({ customer,get }) {
           <Button variant="outlined" size="small" onClick={handleClickOpen}>
             Preview
           </Button>
-          <Button variant="outlined" size="small" onClick={editCustomer}   sx={{
-                            color:'green',
-                            borderColor: 'green'
-                        }}>
-                        Update
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={handleAlertClose}
-                        sx={{ color: 'red', borderColor: 'red' }}
-                    >
-                        Delete
-                    </Button>
-                    <Button
-    variant="outlined"
-    size="small"
-    onClick={handleBlockUnblock} 
-    sx={{
-        color: customer.isDisable ? 'red' : 'green',
-        borderColor: customer.isDisable ? 'red' : 'green'
-    }}
->
-    {(customer.isDisable === false) ? "Active" : "InActive"}
-</Button>
+          <Button variant="outlined" size="small" onClick={editCustomer} sx={{
+            color: 'green',
+            borderColor: 'green'
+          }}>
+            Update
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleAlertClose}
+            sx={{ color: 'red', borderColor: 'red' }}
+          >
+            Delete
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleBlockUnblock}
+            sx={{
+              color: customer.isDisable ? 'red' : 'green',
+              borderColor: customer.isDisable ? 'red' : 'green'
+            }}
+          >
+            {(customer.isDisable === false) ? "Active" : "InActive"}
+          </Button>
 
         </Stack>
       </MainCard>
 
       <CustomerPreview customer={customer} open={open} onClose={handleClose} editCustomer={editCustomer} />
-      <AlertOfferDelete id={customer._id} title={customer.title} open={openAlert} handleClose={handleAlertClose} get={get}/>
-      <OfferModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} get={get}/>
+      <AlertOfferDelete id={customer._id} title={customer.title} open={openAlert} handleClose={handleAlertClose} get={get} />
+      <OfferModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} get={get} />
     </>
   );
 }
 
-CustomerCard.propTypes = { customer: PropTypes.any,get:PropTypes.any };
+CustomerCard.propTypes = { customer: PropTypes.any, get: PropTypes.any };

@@ -17,6 +17,8 @@ const AppEducationalInstitute = Loadable(lazy(() => import('pages/apps/customer/
 const AppMemberShipNumber = Loadable(lazy(() => import('pages/apps/customer/membershipNumber')));
 
 const AppSupport = Loadable(lazy(() => import('pages/apps/customer/supportuser')));
+const MessageBrodcast = Loadable(lazy(() => import('pages/apps/customer/message-brodcast')));
+
 
 const AppAdvertismentList = Loadable(lazy(() => import('pages/apps/customer/AppAdvertisment.list')));
 const AppCustomerCard = Loadable(lazy(() => import('pages/apps/customer/card')));
@@ -145,6 +147,10 @@ const MainRoutes = {
                 {
                   path: 'support-list',
                   element: <AppSupport />
+                },
+                {
+                  path: 'Message-Brodcast',
+                  element: <MessageBrodcast />
                 },
               ]
             },

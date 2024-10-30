@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  Grid, Stack, Button, TextField, InputLabel
+  Grid, Stack, Button, TextField, InputLabel,InputAdornment,IconButton
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -11,6 +11,7 @@ import ReactQuill from '../../../../sections/forms/plugins/ReactQuill'
 import useConfig from 'hooks/useConfig';
 import { useTheme } from '@mui/material/styles';
 import { openSnackbar } from 'api/snackbar';
+import { Eye,EyeSlash } from 'iconsax-react';
 
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -23,6 +24,14 @@ const validationSchema = yup.object({
   howToUseUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   buyNowUrl: yup.string().url('Enter a valid URL').required('URL is required'),
   // TermsandConditionsurl: yup.string().required('Terms & Conditions is required')
+});
+
+const passwordValidationSchema = yup.object({
+  currentPassword: yup.string().required('Current password is required'),
+  newPassword: yup.string().min(8, 'Password should be at least 8 characters long').required('New password is required'),
+  confirmPassword: yup.string()
+    .oneOf([yup.ref('newPassword'), null], 'Passwords must match')
+    .required('Confirm password is required'),
 });
 
 export default function TabSettings() {
@@ -98,7 +107,6 @@ export default function TabSettings() {
         };
 
         const response = await axios.post(`${baseUrl}/v1/adminpanel/accountSettings`, payload, config);
-        console.log('API response:', response);
         // Add the logic for opening a snackbar
         setIsEditing(false); // Disable editing after successful submission
       } catch (error) {
@@ -171,8 +179,65 @@ export default function TabSettings() {
       console.error('Error posting data:', error);
     }
   };
+  const passwordFormik = useFormik({
+    initialValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    },
+    validationSchema: passwordValidationSchema,
+    onSubmit: async (values) => {
+      const payload = {
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      };
+      try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
 
+       const respone =   await axios.post(`${baseUrl}/v1/authAdmin/reset-password`, payload, config);
 
+       if(respone.status === 200){
+        openSnackbar({
+          open: true,
+          message: respone.data.msg,
+          variant: 'alert',
+          alert: { color: 'success' }
+        });
+       }else if (respone.status === 201){
+        openSnackbar({
+          open: true,
+          message: respone.data.msg,
+          variant: 'alert',
+          alert: { color: 'error' }
+        });
+       }
+
+        passwordFormik.resetForm();
+      } catch (error) {
+        console.error('Error resetting password:', error);
+        openSnackbar({
+          open: true,
+          message: 'Failed to reset password.',
+          variant: 'alert',
+          alert: { color: 'error' }
+        });
+      }
+    }
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
@@ -330,6 +395,112 @@ export default function TabSettings() {
           </form>
         </MainCard>
       </Grid>
+
+      <Grid container spacing={2}>
+  
+
+      <Grid item xs={12} md={6}>
+        <MainCard title="Change Password">
+          <form onSubmit={passwordFormik.handleSubmit}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="currentPassword">Current Password</InputLabel>
+                  <TextField
+                    fullWidth
+                    id="currentPassword"
+                    name="currentPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter current password"
+                    value={passwordFormik.values.currentPassword}
+                    onChange={passwordFormik.handleChange}
+                    onBlur={passwordFormik.handleBlur}
+                    error={passwordFormik.touched.currentPassword && Boolean(passwordFormik.errors.currentPassword)}
+                    helperText={passwordFormik.touched.currentPassword && passwordFormik.errors.currentPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={handleClickShowPassword} onMouseDown={(e) => e.preventDefault()}>
+                            {showPassword ? <EyeSlash /> : <Eye />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* New Password */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="newPassword">New Password</InputLabel>
+                  <TextField
+                    fullWidth
+                    id="newPassword"
+                    name="newPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter new password"
+                    value={passwordFormik.values.newPassword}
+                    onChange={passwordFormik.handleChange}
+                    onBlur={passwordFormik.handleBlur}
+                    error={passwordFormik.touched.newPassword && Boolean(passwordFormik.errors.newPassword)}
+                    helperText={passwordFormik.touched.newPassword && passwordFormik.errors.newPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={handleClickShowPassword} onMouseDown={(e) => e.preventDefault()}>
+                            {showPassword ? <EyeSlash /> : <Eye />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Confirm Password */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+                  <TextField
+                    fullWidth
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter confirm password"
+                    value={passwordFormik.values.confirmPassword}
+                    onChange={passwordFormik.handleChange}
+                    onBlur={passwordFormik.handleBlur}
+                    error={passwordFormik.touched.confirmPassword && Boolean(passwordFormik.errors.confirmPassword)}
+                    helperText={passwordFormik.touched.confirmPassword && passwordFormik.errors.confirmPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={handleClickShowPassword} onMouseDown={(e) => e.preventDefault()}>
+                            {showPassword ? <EyeSlash /> : <Eye />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Submit Button for Password Reset */}
+              <Grid item xs={12}>
+                <Stack direction="row" justifyContent="flex-end">
+                  <AnimateButton>
+                    <Button variant="contained" type="submit">
+                      Reset Password
+                    </Button>
+                  </AnimateButton>
+                </Stack>
+              </Grid>
+            </Grid>
+          </form>
+        </MainCard>
+      </Grid>
+    </Grid>
       <Grid
         item
         xs={12}
