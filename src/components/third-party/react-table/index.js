@@ -1,4 +1,5 @@
 export { default as CSVExport } from './CSVExport';
+export { default as CSVImportExport } from './CSVImport';
 export { default as HeaderSort } from './HeaderSort';
 export { default as EmptyTable } from './EmptyTable';
 export { default as RowEditable } from './RowEditable';
@@ -11,5 +12,6 @@ export { default as DraggableColumnHeader } from './DraggableColumnHeader';
 export { default as IndeterminateCheckbox } from './IndeterminateCheckbox';
 export { default as SelectColumnVisibility } from './SelectColumnVisibility';
 export { default as SelectColumnSorting } from './SelectColumnSorting';
+
 
 export { default as Filter } from './Filter';

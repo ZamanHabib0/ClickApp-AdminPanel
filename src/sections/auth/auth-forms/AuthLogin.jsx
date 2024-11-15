@@ -67,13 +67,15 @@ export default function AuthLogin({ forgot }) {
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             await login(values.email, values.password);
+
+            console.log("sad" +scriptedRef.response.status)
            
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
               // preload('/v1/adminpanel/dashboard', fetcher); // load menu on login success
             }else {
-              setErrors({ submit: scriptedRef.current.msg });
+              setErrors({ submit: "Unauthorized access - possibly invalid credentials."});
             }
           } catch (err) {
               if (err.response && err.response.status === 401) {
@@ -81,7 +83,7 @@ export default function AuthLogin({ forgot }) {
               setSubmitting(false);
             } else {
               setStatus({ success: false });
-              setErrors({ submit: err.status });
+              setErrors({ submit: err.msg });
               setSubmitting(false);
             }
              

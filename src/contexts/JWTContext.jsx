@@ -85,7 +85,7 @@ export const JWTProvider = ({ children }) => {
 
     let serviceToken = user.authToken
     // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTg3ODA5MjczZTI4Yjk2ZDJlMzg1MzgiLCJpYXQiOjE3MTk2OTA2MTksImV4cCI6MTcxOTc3NzAxOX0.eqA13oPFLdXbi4T5xw_ujmwCP19goMjU2wFLLrnO6i4"
-
+   if(response.status === 200){
     localStorage.setItem('authToken', user.authToken);
 
     setSession(serviceToken);
@@ -93,9 +93,17 @@ export const JWTProvider = ({ children }) => {
       type: LOGIN,
       payload: {
         isLoggedIn: true,
-        user
+        user 
       }
     });
+   }else{
+    dispatch({
+      type: LOGOUT,
+      payload: {
+        isLoggedIn: false,
+      }
+    });
+   }
   };
 
   const register = async (email, password, firstName, lastName) => {

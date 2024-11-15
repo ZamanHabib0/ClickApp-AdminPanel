@@ -42,6 +42,8 @@ import Breadcrumb from 'components/@extended/Breadcrumbs';
 import {
   // CSVExport,
   // DebouncedInput,
+  CSVExport,
+  CSVImportExport,
   HeaderSort,
   IndeterminateCheckbox,
   // RowSelection,
@@ -69,6 +71,11 @@ const CustomerListPage = () => {
   const handleClose = () => {
     setOpen(!open);
   };
+
+  const headers = [
+    { label: "Membership Number", key: "memberShipNumber" },
+    { label: "isRedeem", key: "isRedeem" }
+  ];
 
   const columns = useMemo(() => [
     {
@@ -110,16 +117,6 @@ const CustomerListPage = () => {
   if (customersLoading) return <div>Loading...</div>;
   if (customersError) return <div>Error loading data...</div>;
 
-  // const {
-  //   getTableProps,
-  //   getTableBodyProps,
-  //   headerGroups,
-  //   rows,
-  //   prepareRow,
-  //   state: { sortBy }
-  // } = useReactTable({ columns, data, initialState: { sortBy: [{ id: 'isRedeem', desc: false }] } });
-
-
   const ReactTable = ({ columns, data }) => {
     const table = useReactTable({
       data,
@@ -144,7 +141,7 @@ const CustomerListPage = () => {
     });
 
     return (
-      <MainCard content={false}>
+      <MainCard content={false} >
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ padding: 3 }}>
           <DebouncedInput
             value={globalFilter ?? ''}
@@ -154,9 +151,12 @@ const CustomerListPage = () => {
           <Stack direction="row" alignItems="center" spacing={2}>
             <SelectColumnSorting {...{ getState: table.getState, getAllColumns: table.getAllColumns, setSorting }} />
             <Button variant="contained" startIcon={<Add />} onClick={() => setCustomerModal(true)} size="large">
-              Generate Membership Number
+              Generate Number
             </Button>
+            <CSVImportExport {...{ data: data, headers, filename: 'Report.csv' }} />
+            <CSVExport {...{ data: data, headers, filename: 'Report.csv' }} />
           </Stack>
+          
         </Stack>
         <ScrollX>
           <Stack>
@@ -168,7 +168,7 @@ const CustomerListPage = () => {
                     <TableRow key={headerGroup.id}>
                       {headerGroup.headers.map((header) => (
                         <TableCell
-                          key={header.id}
+                          key={header.id} 
                           {...header.column.columnDef.meta}
                           onClick={header.column.getToggleSortingHandler()}
                           {...(header.column.getCanSort() && header.column.columnDef.meta === undefined && {
