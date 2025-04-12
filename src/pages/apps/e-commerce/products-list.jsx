@@ -23,6 +23,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import capitalize from '@mui/utils/capitalize';
 import { openSnackbar } from 'api/snackbar';
+import UserEditModel from './UserEditModel'; 
 
 // third-party
 import { NumericFormat } from 'react-number-format';
@@ -62,6 +63,7 @@ import { useGetCustomer } from 'api/userTable';
 // assets
 import { Add, Edit, Eye, Trash,Lock,Unlock } from 'iconsax-react';
 import axios from 'axios';
+import AlertUserDelete from './AlertUserDelete';
 
 export const fuzzyFilter = (row, columnId, value, addMeta) => {
   // rank the item
@@ -242,13 +244,21 @@ function ReactTable({  columns }) {
 
 export default function ProductList() {
   const products = useLoaderData();
+  const [editUserModal, setEditUserModal] = useState(false);
+const [selectedUser, setSelectedUser] = useState(null);
+const [open, setOpen] = useState(false);
+
+const handleClose = () => {
+  setOpen(!open);
+};
+
 
   const columns = useMemo(
     () => [
     
       {
         header: 'fullName',
-        accessorKey: 'belongTo.fullName',
+        accessorKey: 'fullName',
         meta: {
           className: 'cell-left'  // Remove this line or change 'cell-right' to align left
         },
@@ -272,21 +282,21 @@ export default function ProductList() {
       },
       {
         header: 'Email',
-        accessorKey: 'belongTo.email',
+        accessorKey: 'email',
         meta: {
           className: 'cell-left'  // Remove this line or change 'cell-right' to align left
         }
       },
       {
         header: 'Remaining Offers',
-        accessorKey: 'remainingOffers',
+        accessorKey: 'offerCard.remainingOffers',
         meta: {
           className: 'cell-center'
         }
       },
       {
         header: 'Expiration Date',
-        accessorKey: 'expirationDate',
+        accessorKey: 'offerCard.expirationDate',
         meta: {
           className: 'cell-center'
         },
@@ -308,10 +318,10 @@ export default function ProductList() {
           className: 'cell-center'
         },
         cell: ({ row }) => {
-          const [isBlocked, setIsBlocked] = useState(row.original.belongTo.isBlock);
+          const [isBlocked, setIsBlocked] = useState(row.original.isBlock);
 
           const handleBlockUnblock = async () => {
-            const userId = row.original.belongTo._id;
+            const userId = row.original._id;
             const isBlock = !isBlocked;
             try {
               const token = localStorage.getItem('authToken');
@@ -358,6 +368,34 @@ export default function ProductList() {
                   {isBlocked ? <Lock/> : < Unlock/>}
                 </IconButton>
               </Tooltip>
+
+              <Tooltip title="Edit">
+              <IconButton
+                color="primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedUser(row.original);
+                  setEditUserModal(true);
+                }}
+              >
+                <Edit />
+              </IconButton>
+            </Tooltip>
+
+              <Tooltip title="Delete User">
+                <IconButton
+                  color="error"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedUser(row.original);
+                    handleClose();
+                  }}
+                >
+                  <Trash />
+                </IconButton>
+              </Tooltip>
+
+
             </Stack>
           );
         }
@@ -369,6 +407,16 @@ export default function ProductList() {
   return (
     <>
       <ReactTable {...{ data: products, columns }} />
+      <UserEditModel
+        open={editUserModal}
+        modalToggler={setEditUserModal}
+        customer={selectedUser}
+      />
+      <AlertUserDelete
+              user={selectedUser}
+              open={open}
+              handleClose={handleClose}
+            />
     </>
   );
 }

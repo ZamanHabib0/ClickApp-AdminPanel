@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import { useMemo } from 'react';
 import axios from 'axios';
-import { fetcher } from 'utils/axios';
+import { fetcher, fetcherPost } from 'utils/axios';
 
 const baseUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -18,7 +18,7 @@ export const endpoints = {
 };
 
 export function useGetCustomer() {
-  const { data, error, isValidating } = useSWR(`${baseUrl}/v1/offerCard/getAllOfferCard`, fetcher, {
+  const { data, error, isValidating } = useSWR(`${baseUrl}/v1/offerCard/getAllUsersWithOfferCards`, fetcher, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -121,7 +121,7 @@ export async function deleteOffer(customerId) {
     const response = await axios.delete(`${baseUrl}/v1/vendor/${customerId}/deleteOffer`, config);
 
 
-    mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin`, (currentData) => {
+    mutate(`${baseUrl}/v1/vendor/getAllOffersAdmin` , fetcher ,(currentData) => {
       const remainingOffers = currentData.data.offers.filter((offer) => offer._id !== customerId);
       return {
         ...currentData,
@@ -132,9 +132,52 @@ export async function deleteOffer(customerId) {
       };
     }, false);
 
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error('Error deleting vendor:', error);
+    throw error;
+  }
+}
+
+export async function userManagement(userId, updatedData) {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    // Make the API call to update the user
+    const response = await axios.post(`${baseUrl}/v1/authAdmin/userManagement/${userId}`, updatedData, config);
+
+    if (response.data.error === false) {
+      const updatedUser = response.data.data;  // This should be the user object that is updated
+      const updatedOfferCard = response.data.updatedOfferCard; // Assuming this is the updated offer card
+
+      // Update the SWR cache for the users
+      mutate(`${baseUrl}/v1/offerCard/getAllUsersWithOfferCards`, fetcher,(currentData) => {
+        if (!currentData || !currentData.data) return currentData;
+
+        const updatedCustomers = currentData.data.map((customer) =>
+          customer._id === updatedUser._id
+            ? { ...customer, ...updatedUser, offerCard: updatedOfferCard }
+            : customer
+        );
+
+        return {
+          ...currentData,
+          data: updatedCustomers
+        };
+      }, false); // No revalidation, just cache update
+
+    } else {
+      console.error('User update failed:', response.data.msg);
+      throw new Error(response.data.msg);
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
     throw error;
   }
 }
@@ -166,3 +209,40 @@ export function handlerCustomerDialog(modal) {
     false
   );
 }
+
+
+export async function deleteUser(userId) {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    const response = await axios.delete(`${baseUrl}/v1/authAdmin/deleteUserByAdmin/${userId}`, config);
+
+
+    mutate(`${baseUrl}/v1/offerCard/getAllUsersWithOfferCards`, fetcher,(currentData) => {
+      if (!currentData || !currentData.data) return currentData;
+
+      const updatedCustomers = currentData.data.map((customer) =>
+        customer._id === updatedUser._id
+          ? { ...customer, ...updatedUser, offerCard: updatedOfferCard }
+          : customer
+      );
+
+      return {
+        ...currentData,
+        data: updatedCustomers
+      };
+    }, false); // No revalidation, just cache update
+
+    return response.data.data;
+  } catch (error) {
+    console.error('Error deleting vendor:', error);
+    throw error;
+  }
+}
+

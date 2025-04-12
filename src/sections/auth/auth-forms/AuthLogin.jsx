@@ -67,8 +67,6 @@ export default function AuthLogin({ forgot }) {
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
             await login(values.email, values.password);
-
-            console.log("sad" +scriptedRef.response.status)
            
             if (scriptedRef.current) {
               setStatus({ success: true });
